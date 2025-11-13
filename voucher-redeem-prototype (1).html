@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub User Story 4: Nhận thưởng voucher Urbox - Prototype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .demo-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 2000;
+            max-width: 300px;
+        }
+
+        .demo-controls h3 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .demo-controls button {
+            display: block;
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #667eea;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .demo-controls button:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        .demo-controls button:last-child {
+            margin-bottom: 0;
+            background: #f5576c;
+        }
+
+        .demo-controls button:last-child:hover {
+            background: #e04758;
+        }
+
+        .demo-controls .section {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .demo-controls .section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .demo-controls .section-title {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        .overlay.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .popup {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 480px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .popup-header {
+            text-align: center;
+            padding: 32px 24px 24px;
+        }
+
+        .popup-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .popup-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .popup-subtitle {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .popup-body {
+            padding: 0 24px 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: #f5576c;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-input.error {
+            border-color: #f5576c;
+        }
+
+        .form-input:disabled {
+            background: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .error-text {
+            display: none;
+            font-size: 13px;
+            color: #f5576c;
+            margin-top: 6px;
+        }
+
+        .error-text.show {
+            display: block;
+        }
+
+        .form-note {
+            font-size: 13px;
+            color: #999;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .email-display {
+            background: #f0f4ff;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .email-display .email-icon {
+            font-size: 24px;
+        }
+
+        .email-display .email-text {
+            flex: 1;
+        }
+
+        .email-display .email-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .email-display .email-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .change-email-link {
+            font-size: 13px;
+            color: #667eea;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+
+        .change-email-link:hover {
+            text-decoration: underline;
+        }
+
+        .info-box {
+            background: #fffbea;
+            border-left: 3px solid #ffc107;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .popup-footer {
+            padding: 0 24px 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #cccccc;
+        }
+
+        .btn-primary.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .btn-primary.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #4caf50;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s;
+            max-width: 400px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            font-size: 24px;
+        }
+
+        .toast-text {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .error-popup {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+            animation: slideUp 0.3s;
+        }
+
+        .error-popup .popup-header {
+            padding: 24px 20px 16px;
+        }
+
+        .error-popup .popup-icon {
+            font-size: 48px;
+            color: #f5576c;
+        }
+
+        .error-popup .popup-title {
+            font-size: 20px;
+        }
+
+        .error-popup .popup-body {
+            padding: 0 20px 20px;
+        }
+
+        .error-popup .info-box {
+            background: #fef2f2;
+            border-left-color: #f5576c;
+        }
+
+        .error-popup .popup-footer {
+            padding: 0 20px 20px;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .popup, .error-popup {
+                margin: 20px;
+            }
+
+            .popup-header {
+                padding: 24px 20px 20px;
+            }
+
+            .popup-icon {
+                font-size: 52px;
+            }
+
+            .popup-title {
+                font-size: 20px;
+            }
+
+            .popup-body {
+                padding: 0 20px 20px;
+            }
+
+            .popup-footer {
+                padding: 0 20px 20px;
+                flex-direction: column;
+            }
+
+            .demo-controls {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Demo Controls -->
+    <div class="demo-controls">
+        <h3>🎮 Demo Sub User Story 4</h3>
+        
+        <div class="section">
+            <div class="section-title">Flow chính</div>
+            <button onclick="showNewUserPopup()">Case 1: User chưa có email (lần đầu)</button>
+            <button onclick="showExistingUserPopup()">Case 2: User đã có email (lần 2+)</button>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Error Handling</div>
+            <button onclick="showTimeoutError()">Timeout Error (10s)</button>
+            <button onclick="showNetworkError()">Network Error</button>
+            <button onclick="showGeneralError()">General Error</button>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Controls</div>
+            <button onclick="closeAllPopups()">Đóng tất cả popup</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">✅</span>
+        <span class="toast-text" id="toastText"></span>
+    </div>
+
+    <!-- Main Overlay -->
+    <div class="overlay" id="overlay" onclick="closePopupOnOverlay(event)">
+        <!-- Popup - New User (Chưa có email) -->
+        <div class="popup" id="newUserPopup" onclick="event.stopPropagation()">
+            <div class="popup-header">
+                <div class="popup-icon">🎁</div>
+                <h2 class="popup-title">Nhận voucher Urbox 50k</h2>
+                <p class="popup-subtitle">Bạn sắp nhận voucher Urbox 50k</p>
+            </div>
+
+            <div class="popup-body">
+                <div class="form-group">
+                    <label class="form-label">
+                        Email nhận voucher <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        class="form-input" 
+                        id="emailInput"
+                        placeholder="Nhập email của bạn"
+                    >
+                    <p class="error-text" id="emailError">Vui lòng nhập email hợp lệ</p>
+                    <p class="form-note">Email này sẽ được lưu và dùng cho các lần nhận quà sau</p>
+                </div>
+
+                <div class="info-box">
+                    <p>Kiểm tra hộp thư đến hoặc spam nếu không thấy email nhé!</p>
+                </div>
+            </div>
+
+            <div class="popup-footer">
+                <button class="btn btn-secondary" onclick="closeAllPopups()">Hủy</button>
+                <button class="btn btn-primary" id="confirmBtn" onclick="handleConfirm()" disabled>
+                    Xác nhận nhận quà
+                </button>
+            </div>
+        </div>
+
+        <!-- Popup - Existing User (Đã có email) -->
+        <div class="popup hidden" id="existingUserPopup" onclick="event.stopPropagation()">
+            <div class="popup-header">
+                <div class="popup-icon">🎁</div>
+                <h2 class="popup-title">Xác nhận nhận quà</h2>
+                <p class="popup-subtitle">Bạn sẽ nhận voucher Urbox 50k</p>
+            </div>
+
+            <div class="popup-body">
+                <!-- Email Display Mode -->
+                <div id="emailDisplayMode">
+                    <div class="email-display">
+                        <span class="email-icon">📧</span>
+                        <div class="email-text">
+                            <div class="email-label">Voucher sẽ được gửi về:</div>
+                            <div class="email-value" id="displayEmail">user@example.com</div>
+                        </div>
+                    </div>
+
+                    <a class="change-email-link" onclick="enableEmailEdit()">
+                        ✏️ Đổi email khác?
+                    </a>
+                </div>
+
+                <!-- Email Edit Mode -->
+                <div id="emailEditMode" class="hidden">
+                    <div class="form-group">
+                        <label class="form-label">
+                            Email nhận voucher <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            class="form-input" 
+                            id="emailInputEdit"
+                            placeholder="Nhập email của bạn"
+                        >
+                        <p class="error-text" id="emailErrorEdit">Vui lòng nhập email hợp lệ</p>
+                        <p class="form-note">Email mới sẽ được lưu và dùng cho các lần sau</p>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <p>Kiểm tra hộp thư đến hoặc spam nếu không thấy email nhé!</p>
+                </div>
+            </div>
+
+            <div class="popup-footer">
+                <button class="btn btn-secondary" onclick="closeAllPopups()">Hủy</button>
+                <button class="btn btn-primary" id="confirmBtnExisting" onclick="handleConfirmExisting()">
+                    Xác nhận nhận quà
+                </button>
+            </div>
+        </div>
+
+        <!-- Error Popups -->
+        <div class="error-popup hidden" id="errorPopup" onclick="event.stopPropagation()">
+            <div class="popup-header">
+                <div class="popup-icon">⚠️</div>
+                <h2 class="popup-title" id="errorTitle">Oops... có lỗi xảy ra</h2>
+            </div>
+
+            <div class="popup-body">
+                <div class="info-box">
+                    <p id="errorMessage">Không thể kết nối với hệ thống Urbox, vui lòng thử lại sau.</p>
+                </div>
+            </div>
+
+            <div class="popup-footer">
+                <button class="btn btn-primary" onclick="handleRetry()">Thử lại</button>
+                <button class="btn btn-secondary" onclick="closeAllPopups()">Đóng</button>
+                <a href="mailto:support@luyende.vn" class="btn btn-secondary" style="text-decoration: none; text-align: center; margin-top: 8px;">Liên hệ hỗ trợ</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentEmail = '';
+        let isRetryAction = false;
+
+        // Email validation
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Show New User Popup
+        function showNewUserPopup() {
+            closeAllPopups();
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('newUserPopup').classList.remove('hidden');
+            document.getElementById('emailInput').value = '';
+            document.getElementById('emailError').classList.remove('show');
+            document.getElementById('confirmBtn').disabled = true;
+            document.getElementById('confirmBtn').classList.remove('loading');
+        }
+
+        // Show Existing User Popup
+        function showExistingUserPopup() {
+            closeAllPopups();
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('existingUserPopup').classList.remove('hidden');
+            
+            // Reset to display mode
+            document.getElementById('emailDisplayMode').classList.remove('hidden');
+            document.getElementById('emailEditMode').classList.add('hidden');
+            document.getElementById('displayEmail').textContent = 'user@example.com';
+            document.getElementById('confirmBtnExisting').disabled = false;
+            document.getElementById('confirmBtnExisting').classList.remove('loading');
+        }
+
+        // Enable Email Edit
+        function enableEmailEdit() {
+            document.getElementById('emailDisplayMode').classList.add('hidden');
+            document.getElementById('emailEditMode').classList.remove('hidden');
+            
+            const currentEmail = document.getElementById('displayEmail').textContent;
+            document.getElementById('emailInputEdit').value = currentEmail;
+            document.getElementById('emailInputEdit').focus();
+            
+            // Validate immediately
+            validateEmailEdit();
+        }
+
+        // Close All Popups
+        function closeAllPopups() {
+            document.getElementById('overlay').classList.remove('show');
+            document.querySelectorAll('.popup, .error-popup').forEach(popup => {
+                popup.classList.add('hidden');
+            });
+        }
+
+        function closePopupOnOverlay(event) {
+            if (event.target.id === 'overlay') {
+                closeAllPopups();
+            }
+        }
+
+        // Validate Email Input (New User)
+        const emailInput = document.getElementById('emailInput');
+        const emailError = document.getElementById('emailError');
+        const confirmBtn = document.getElementById('confirmBtn');
+
+        emailInput.addEventListener('input', validateEmail);
+        emailInput.addEventListener('blur', validateEmail);
+
+        function validateEmail() {
+            const email = emailInput.value.trim();
+            
+            if (email === '') {
+                emailInput.classList.add('error');
+                emailError.textContent = 'Vui lòng nhập email';
+                emailError.classList.add('show');
+                confirmBtn.disabled = true;
+            } else if (!isValidEmail(email)) {
+                emailInput.classList.add('error');
+                emailError.textContent = 'Vui lòng nhập email hợp lệ';
+                emailError.classList.add('show');
+                confirmBtn.disabled = true;
+            } else {
+                emailInput.classList.remove('error');
+                emailError.classList.remove('show');
+                confirmBtn.disabled = false;
+            }
+        }
+
+        // Validate Email Edit (Existing User)
+        const emailInputEdit = document.getElementById('emailInputEdit');
+        const emailErrorEdit = document.getElementById('emailErrorEdit');
+        const confirmBtnExisting = document.getElementById('confirmBtnExisting');
+
+        emailInputEdit.addEventListener('input', validateEmailEdit);
+        emailInputEdit.addEventListener('blur', validateEmailEdit);
+
+        function validateEmailEdit() {
+            const email = emailInputEdit.value.trim();
+            
+            if (email === '') {
+                emailInputEdit.classList.add('error');
+                emailErrorEdit.textContent = 'Vui lòng nhập email';
+                emailErrorEdit.classList.add('show');
+                confirmBtnExisting.disabled = true;
+            } else if (!isValidEmail(email)) {
+                emailInputEdit.classList.add('error');
+                emailErrorEdit.textContent = 'Vui lòng nhập email hợp lệ';
+                emailErrorEdit.classList.add('show');
+                confirmBtnExisting.disabled = true;
+            } else {
+                emailInputEdit.classList.remove('error');
+                emailErrorEdit.classList.remove('show');
+                confirmBtnExisting.disabled = false;
+            }
+        }
+
+        // Handle Confirm (New User)
+        function handleConfirm() {
+            const email = emailInput.value.trim();
+            
+            if (!isValidEmail(email)) {
+                validateEmail();
+                return;
+            }
+
+            // Show loading
+            confirmBtn.classList.add('loading');
+            confirmBtn.disabled = true;
+            currentEmail = email;
+
+            // Simulate API call
+            setTimeout(() => {
+                confirmBtn.classList.remove('loading');
+                closeAllPopups();
+                showToast(`Voucher đã được gửi về email ${email}! Kiểm tra hộp thư nhé 📧`);
+            }, 2000);
+        }
+
+        // Handle Confirm (Existing User)
+        function handleConfirmExisting() {
+            const isEditMode = !document.getElementById('emailEditMode').classList.contains('hidden');
+            let email;
+
+            if (isEditMode) {
+                email = emailInputEdit.value.trim();
+                if (!isValidEmail(email)) {
+                    validateEmailEdit();
+                    return;
+                }
+            } else {
+                email = document.getElementById('displayEmail').textContent;
+            }
+
+            // Show loading
+            confirmBtnExisting.classList.add('loading');
+            confirmBtnExisting.disabled = true;
+            currentEmail = email;
+
+            // Simulate API call
+            setTimeout(() => {
+                confirmBtnExisting.classList.remove('loading');
+                confirmBtnExisting.disabled = false;
+                closeAllPopups();
+                showToast(`Voucher đã được gửi về email ${email}! Kiểm tra hộp thư nhé 📧`);
+            }, 2000);
+        }
+
+        // Error Handlers
+        function showTimeoutError() {
+            showErrorPopup(
+                'Kết nối quá lâu',
+                'Kết nối quá lâu, vui lòng thử lại.'
+            );
+        }
+
+        function showNetworkError() {
+            showErrorPopup(
+                'Mất kết nối mạng',
+                'Mất kết nối mạng. Kiểm tra và thử lại.'
+            );
+        }
+
+        function showGeneralError() {
+            showErrorPopup(
+                'Oops... có lỗi xảy ra',
+                'Không thể kết nối với hệ thống Urbox, vui lòng thử lại sau.'
+            );
+        }
+
+        function showErrorPopup(title, message) {
+            closeAllPopups();
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('errorPopup').classList.remove('hidden');
+            document.getElementById('errorTitle').textContent = title;
+            document.getElementById('errorMessage').textContent = message;
+            isRetryAction = true;
+        }
+
+        function handleRetry() {
+            if (isRetryAction) {
+                closeAllPopups();
+                // Simulate retry - show new user popup again
+                setTimeout(() => {
+                    showNewUserPopup();
+                    if (currentEmail) {
+                        emailInput.value = currentEmail;
+                        validateEmail();
+                    }
+                }, 300);
+                isRetryAction = false;
+            }
+        }
+
+        // Show Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toastText');
+            
+            toastText.textContent = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }
+
+        // Initial demo
+        setTimeout(() => {
+            showNewUserPopup();
+        }, 500);
+    </script>
+</body>
+</html>
