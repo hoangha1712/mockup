@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section A: Thông Tin Buổi Học</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fb;
+            padding: 20px;
+            color: #2d3748;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .header .badge {
+            background: rgba(255,255,255,0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .section {
+            padding: 28px;
+            background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2a44;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cdd9ee;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        /* Field 1: Chủ Đề Bài Học */
+        .field-group-1 {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        /* Field 2: Nội Dung Chi Tiết */
+        .field-group-2 {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #764ba2;
+        }
+
+        /* Field 3: Bối Cảnh Buổi Học */
+        .field-group-3 {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #06b6d4;
+        }
+
+        /* Options cho Bối Cảnh */
+        .options-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-item:hover {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+
+        .option-item input[type="radio"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #cdd9ee;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-top: 2px;
+            background: white;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .option-item input[type="radio"]:hover {
+            border-color: #667eea;
+        }
+
+        .option-item input[type="radio"]:checked {
+            border-color: #667eea;
+            background: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.12);
+        }
+
+        .option-label {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .option-label .title {
+            font-weight: 600;
+            color: #1f2a44;
+            font-size: 14px;
+        }
+
+        .option-label .desc {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        /* Sub-option cho "Buổi bị gián đoạn" */
+        .sub-options {
+            margin-left: 30px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .sub-options.show {
+            display: flex;
+        }
+
+        .sub-option-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: #f0f4ff;
+            border-radius: 6px;
+        }
+
+        .sub-option-item input[type="checkbox"] {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #667eea;
+            border-radius: 4px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .sub-option-item input[type="checkbox"]:checked {
+            background: #667eea;
+            box-shadow: inset 0 0 0 2px white;
+        }
+
+        .sub-option-item label {
+            font-size: 13px;
+            color: #475569;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        /* Custom textarea (nếu chọn Custom) */
+        .custom-input {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .custom-input.show {
+            display: block;
+        }
+
+        /* Info box */
+        .info-box {
+            background: #e0f2fe;
+            border: 1px solid #7dd3fc;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #0c4a6e;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .info-box::before {
+            content: 'ℹ️';
+            flex-shrink: 0;
+        }
+
+        /* Shared indicator */
+        .shared-indicator {
+            background: #ecfdf5;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #047857;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .shared-indicator::before {
+            content: '✓';
+            flex-shrink: 0;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* Button group */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #1f2a44;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        /* Character count */
+        .char-count {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .char-count.warning {
+            color: #f59e0b;
+        }
+
+        .char-count.error {
+            color: #ef4444;
+        }
+
+        /* Summary box (dưới cùng) */
+        .summary-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #7dd3fc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 24px;
+        }
+
+        .summary-box h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0c4a6e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .summary-box h3::before {
+            content: '📋';
+        }
+
+        .summary-content {
+            font-size: 13px;
+            color: #0c4a6e;
+            line-height: 1.6;
+        }
+
+        .summary-content .label {
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .section {
+                padding: 16px;
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+            }
+
+            .option-item {
+                padding: 10px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📝 SECTION A: THÔNG TIN BUỔI HỌC</h1>
+            <div class="badge">Nhập 1 lần → Dùng chung cho N học viên</div>
+        </div>
+
+        <!-- Main Section -->
+        <div class="section">
+            
+            <!-- Shared Indicator -->
+            <div class="shared-indicator">
+                ✓ Thông tin buổi học này sẽ được chia sẻ cho tất cả học viên trong lớp
+            </div>
+
+            <!-- Field 1: Chủ Đề Bài Học -->
+            <div class="form-group">
+                <div class="field-group-1">
+                    <label for="topic">
+                        📚 Chủ Đề Bài Học
+                        <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="topic" 
+                        class="form-control" 
+                        placeholder="Ví dụ: Cộng trừ 2-3 chữ số"
+                        maxlength="100"
+                    >
+                    <div class="hint">GV nhập 1 lần, tất cả học viên sẽ dùng chung</div>
+                </div>
+            </div>
+
+            <!-- Field 2: Nội Dung Chi Tiết -->
+            <div class="form-group">
+                <div class="field-group-2">
+                    <label for="content">
+                        📖 Nội Dung Chi Tiết
+                        <span class="required">(Optional)</span>
+                    </label>
+                    <textarea 
+                        id="content" 
+                        class="form-control" 
+                        placeholder="Miêu tả bài học, ví dụ, phương pháp được dạy. Ví dụ: Hôm nay em luyện tập cộng trừ số 2-3 chữ số. Phương pháp: cộng từ phải sang trái, nhớ 10 nếu tổng ≥10. Ví dụ: 23 + 15 = 38"
+                        maxlength="300"
+                        onkeyup="updateCharCount(this, 'content-count')"
+                    ></textarea>
+                    <div class="char-count" id="content-count">0 / 300 ký tự</div>
+                    <div class="hint">Giúp AI và phụ huynh hiểu rõ nội dung buổi học</div>
+                </div>
+            </div>
+
+            <!-- Field 3: Bối Cảnh Buổi Học -->
+            <div class="form-group">
+                <div class="field-group-3">
+                    <label>
+                        🎯 Bối Cảnh Buổi Học
+                        <span class="required">(Optional)</span>
+                    </label>
+                    
+                    <div class="options-group">
+                        <!-- Option 1: Bình thường -->
+                        <div class="option-item" onclick="selectOption(this, 'normal')">
+                            <input type="radio" name="context" value="normal" id="opt-normal">
+                            <div class="option-label">
+                                <span class="title">☑️ Bình thường - HS tập trung tốt</span>
+                                <span class="desc">Buổi học bình thường, học viên tập trung và hoàn thành bài tập tốt</span>
+                            </div>
+                        </div>
+
+                        <!-- Option 2: Tập trung cao -->
+                        <div class="option-item" onclick="selectOption(this, 'high')">
+                            <input type="radio" name="context" value="high" id="opt-high">
+                            <div class="option-label">
+                                <span class="title">⭐ Buổi tập trung cao - HS rất chăm chỉ</span>
+                                <span class="desc">Học viên có tinh thần rất tốt, tập trung cao độ và tiến bộ vượt bậc</span>
+                            </div>
+                        </div>
+
+                        <!-- Option 3: Bị gián đoạn -->
+                        <div class="option-item" onclick="selectOption(this, 'interrupted')">
+                            <input type="radio" name="context" value="interrupted" id="opt-interrupted">
+                            <div class="option-label">
+                                <span class="title">⚠️ Buổi bị gián đoạn - Do...</span>
+                                <span class="desc">Buổi học bị gián đoạn hoặc ảnh hưởng bởi các yếu tố khác</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Sub-options cho "Buổi bị gián đoạn" -->
+                        <div class="sub-options" id="sub-options-interrupted">
+                            <div class="sub-option-item">
+                                <input type="checkbox" id="reason-tired">
+                                <label for="reason-tired">HS bị mệt mỏi</label>
+                            </div>
+                            <div class="sub-option-item">
+                                <input type="checkbox" id="reason-distracted">
+                                <label for="reason-distracted">HS mất tập trung</label>
+                            </div>
+                            <div class="sub-option-item">
+                                <input type="checkbox" id="reason-tech">
+                                <label for="reason-tech">Sự cố kỹ thuật (âm thanh, video, ...)</label>
+                            </div>
+                            <div class="sub-option-item">
+                                <input type="checkbox" id="reason-sick">
+                                <label for="reason-sick">HS bị bệnh nhẹ</label>
+                            </div>
+                            <div class="sub-option-item">
+                                <input type="checkbox" id="reason-other">
+                                <label for="reason-other">Lý do khác</label>
+                            </div>
+                        </div>
+
+                        <!-- Option 4: Khái niệm mới -->
+                        <div class="option-item" onclick="selectOption(this, 'new-concept')">
+                            <input type="radio" name="context" value="new-concept" id="opt-new-concept">
+                            <div class="option-label">
+                                <span class="title">🆕 Buổi học khái niệm mới - Lần đầu HS học</span>
+                                <span class="desc">Đây là lần đầu tiên học viên tiếp xúc với kiến thức/kỹ năng này</span>
+                            </div>
+                        </div>
+
+                        <!-- Option 5: Luyện tập -->
+                        <div class="option-item" onclick="selectOption(this, 'practice')">
+                            <input type="radio" name="context" value="practice" id="opt-practice">
+                            <div class="option-label">
+                                <span class="title">🔄 Buổi luyện tập - Ôn lại bài cũ</span>
+                                <span class="desc">Ôn tập và luyện tập lại các kiến thức đã học từ các buổi trước</span>
+                            </div>
+                        </div>
+
+                        <!-- Option 6: Custom -->
+                        <div class="option-item" onclick="selectOption(this, 'custom')">
+                            <input type="radio" name="context" value="custom" id="opt-custom">
+                            <div class="option-label">
+                                <span class="title">✏️ Tùy chỉnh - Ghi chi tiết</span>
+                                <span class="desc">Nếu bối cảnh khác với các tùy chọn trên</span>
+                            </div>
+                        </div>
+
+                        <!-- Custom textarea -->
+                        <div class="custom-input" id="custom-input">
+                            <textarea 
+                                class="form-control" 
+                                placeholder="Ghi chi tiết bối cảnh buổi học..."
+                                maxlength="200"
+                                onkeyup="updateCharCount(this, 'custom-count')"
+                            ></textarea>
+                            <div class="char-count" id="custom-count">0 / 200 ký tự</div>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <span>Thông tin này sẽ giúp AI tạo nhận xét phù hợp với ngữ cảnh buổi học</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Box -->
+            <div class="summary-box">
+                <h3>Tóm tắt thông tin buổi học</h3>
+                <div class="summary-content">
+                    <div style="margin-bottom: 8px;">
+                        <span class="label">Chủ đề:</span> <span id="summary-topic">(Chưa nhập)</span>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <span class="label">Nội dung:</span> <span id="summary-content">(Tùy chọn)</span>
+                    </div>
+                    <div>
+                        <span class="label">Bối cảnh:</span> <span id="summary-context">(Chưa chọn)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Button Group -->
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="resetForm()">🔄 Reset</button>
+                <button class="btn btn-primary" onclick="saveAndContinue()">✓ Lưu & Tiếp Tục Học Viên 1</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectOption(element, value) {
+            // Uncheck all radio buttons
+            document.querySelectorAll('input[name="context"]').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            // Check selected radio
+            element.querySelector(`input[value="${value}"]`).checked = true;
+
+            // Show/hide sub-options for "interrupted"
+            const subOptions = document.getElementById('sub-options-interrupted');
+            if (value === 'interrupted') {
+                subOptions.classList.add('show');
+            } else {
+                subOptions.classList.remove('show');
+                // Clear sub-checkboxes
+                document.querySelectorAll('#sub-options-interrupted input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                });
+            }
+
+            // Show/hide custom input
+            const customInput = document.getElementById('custom-input');
+            if (value === 'custom') {
+                customInput.classList.add('show');
+            } else {
+                customInput.classList.remove('show');
+            }
+
+            updateSummary();
+        }
+
+        function updateCharCount(element, countId) {
+            const count = element.value.length;
+            const max = element.maxLength;
+            const countEl = document.getElementById(countId);
+            
+            countEl.textContent = `${count} / ${max} ký tự`;
+            
+            if (count > max * 0.8) {
+                countEl.classList.add('warning');
+            } else {
+                countEl.classList.remove('warning');
+            }
+
+            if (count >= max) {
+                countEl.classList.add('error');
+            } else {
+                countEl.classList.remove('error');
+            }
+
+            updateSummary();
+        }
+
+        function updateSummary() {
+            // Topic
+            const topic = document.getElementById('topic').value || '(Chưa nhập)';
+            document.getElementById('summary-topic').textContent = topic;
+
+            // Content
+            const content = document.getElementById('content').value;
+            const contentPreview = content ? content.substring(0, 50) + (content.length > 50 ? '...' : '') : '(Tùy chọn)';
+            document.getElementById('summary-content').textContent = contentPreview;
+
+            // Context
+            const selectedContext = document.querySelector('input[name="context"]:checked');
+            let contextText = '(Chưa chọn)';
+            if (selectedContext) {
+                const contextValue = selectedContext.value;
+                const contextLabel = selectedContext.closest('.option-item').querySelector('.title').textContent;
+                contextText = contextLabel;
+
+                // If interrupted, add selected reasons
+                if (contextValue === 'interrupted') {
+                    const reasons = [];
+                    document.querySelectorAll('#sub-options-interrupted input[type="checkbox"]:checked').forEach(cb => {
+                        reasons.push(cb.nextElementSibling.textContent);
+                    });
+                    if (reasons.length > 0) {
+                        contextText += ` (${reasons.join(', ')})`;
+                    }
+                }
+
+                // If custom, show custom text
+                if (contextValue === 'custom') {
+                    const customText = document.querySelector('#custom-input textarea').value;
+                    if (customText) {
+                        contextText = customText;
+                    }
+                }
+            }
+            document.getElementById('summary-context').textContent = contextText;
+        }
+
+        function resetForm() {
+            document.getElementById('topic').value = '';
+            document.getElementById('content').value = '';
+            document.querySelectorAll('input[name="context"]').forEach(radio => {
+                radio.checked = false;
+            });
+            document.querySelectorAll('#sub-options-interrupted input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+            document.getElementById('custom-input').classList.remove('show');
+            document.querySelector('#custom-input textarea').value = '';
+            document.getElementById('sub-options-interrupted').classList.remove('show');
+            
+            document.getElementById('content-count').textContent = '0 / 300 ký tự';
+            document.getElementById('custom-count').textContent = '0 / 200 ký tự';
+            
+            updateSummary();
+        }
+
+        function saveAndContinue() {
+            const topic = document.getElementById('topic').value;
+            if (!topic.trim()) {
+                alert('⚠️ Vui lòng nhập chủ đề bài học!');
+                return;
+            }
+
+            const data = {
+                topic: topic,
+                content: document.getElementById('content').value,
+                context: document.querySelector('input[name="context"]:checked')?.value || null,
+                contextLabel: document.querySelector('input[name="context"]:checked')?.closest('.option-item')?.querySelector('.title')?.textContent || null
+            };
+
+            console.log('✓ Dữ liệu buổi học được lưu:', data);
+            alert(`✓ Buổi học được lưu!\n\nChủ đề: ${topic}\n\nThông tin này sẽ được chia sẻ cho tất cả học viên trong lớp.\n\n👉 Tiếp theo: Nhập đánh giá cho học viên 1`);
+        }
+
+        // Initialize summary on page load
+        window.addEventListener('load', updateSummary);
+    </script>
+</body>
+</html>
