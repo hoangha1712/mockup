@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhận Xét Lớp 4 (9 tuổi) - Tiến Bộ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-bottom: 3px solid #667eea;
+        }
+
+        .header h1 {
+            font-size: 26px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .student-info {
+            display: flex;
+            gap: 30px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #1f2a44;
+        }
+
+        .feedback-section {
+            background: white;
+            padding: 30px;
+            margin-top: 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .feedback-section:last-child {
+            border-radius: 0 0 12px 12px;
+            border-bottom: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2a44;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .section-icon {
+            font-size: 24px;
+        }
+
+        .section-content {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #475569;
+            text-align: justify;
+        }
+
+        .section-content p {
+            margin-bottom: 12px;
+        }
+
+        .section-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight-box {
+            background: #f0f9ff;
+            border-left: 4px solid #0284c7;
+            padding: 16px;
+            border-radius: 6px;
+            margin: 16px 0;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #0c4a6e;
+        }
+
+        .highlight-positive {
+            background: #ecfdf5;
+            border-left-color: #10b981;
+            color: #047857;
+        }
+
+        .highlight-warning {
+            background: #fff7ed;
+            border-left-color: #f97316;
+            color: #c2410c;
+        }
+
+        .highlight-improvement {
+            background: #fef3c7;
+            border-left-color: #f59e0b;
+            color: #78350f;
+        }
+
+        .highlight-purple {
+            background: #f3e8ff;
+            border-left-color: #a855f7;
+            color: #6b21a8;
+        }
+
+        .tips-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .tip-item {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .tip-title {
+            font-weight: 600;
+            color: #1f2a44;
+            margin-bottom: 4px;
+        }
+
+        .tip-content {
+            color: #64748b;
+        }
+
+        .target-box {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #166534;
+            font-weight: 500;
+        }
+
+        .emoji {
+            margin-right: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .student-info {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .feedback-section {
+                padding: 20px;
+            }
+
+            .section-content {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>📝 Nhận Xét Bài Học - Cộng Trừ 2-3 Chữ Số</h1>
+            <div class="student-info">
+                <div class="info-item">
+                    <span class="info-label">👤 Học Viên:</span>
+                    <span>Nguyễn Minh Hải</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">📚 Lớp:</span>
+                    <span>Lớp 4 (9 tuổi)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">📅 Buổi:</span>
+                    <span>Buổi 15</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">👨‍🏫 Giáo Viên:</span>
+                    <span>Cô Linh</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: BÀI HỌC HÔM NAY -->
+        <div class="feedback-section">
+            <div class="section-title">
+                <span class="section-icon">📚</span>
+                <span>BÀI HỌC HÔM NAY</span>
+            </div>
+            <div class="section-content">
+                <p>Hôm nay em học cộng trừ 2-3 chữ số. Em tập trung rất tốt và hoàn thành đầy đủ bài tập. So với buổi trước, em đã có tiến bộ: buổi trước em còn nhầm lẫn về cách cộng 3 chữ số, hôm nay em đã hiểu rõ quy tắc rồi! <span class="emoji">📈</span></p>
+            </div>
+        </div>
+
+        <!-- SECTION 2: ĐIỂM MẠNH -->
+        <div class="feedback-section">
+            <div class="section-title">
+                <span class="section-icon">✅</span>
+                <span>ĐIỂM MẠNH</span>
+            </div>
+            <div class="section-content">
+                <p>Em đã làm đúng 8/10 bài cộng trừ 2-3 chữ số (tỷ lệ thành công 80%). Điều này cho thấy em đã nắm vững cách cộng trừ. Ngoài ra, em rất tích cực trong buổi học, luôn cố gắng làm cho đến hết. Cô rất vui thấy sự nỗ lực của em! <span class="emoji">👏</span></p>
+            </div>
+        </div>
+
+        <!-- SECTION 3: CẦN CẢI THIỆN -->
+        <div class="feedback-section">
+            <div class="section-title">
+                <span class="section-icon">⚠️</span>
+                <span>CẦN CẢI THIỆN</span>
+            </div>
+            <div class="section-content">
+                <p>Em còn 2 bài sai vì em viết số quá sơ sài, khiến em đọc sai. Ngoài ra, em chưa có thói quen kiểm tra lại bài sau khi làm xong. Nếu em kiểm tra lại, em sẽ phát hiện lỗi và sửa chữa kịp thời.</p>
+            </div>
+        </div>
+
+        <!-- SECTION 4: HƯỚNG DẪN CHO PHỤ HUYNH -->
+        <div class="feedback-section">
+            <div class="section-title">
+                <span class="section-icon">💡</span>
+                <span>HƯỚNG DẪN CHO PHỤ HUYNH</span>
+            </div>
+            <div class="section-content">
+                <div class="tips-list">
+                    <div class="tip-item">
+                        <div class="tip-title">📌 <strong>Bài 1: Viết Rõ Hơn (3-5 phút/ngày)</strong></div>
+                        <div class="tip-content">Cho con luyện viết các số từ 1-20 lớn và rõ ràng. Có thể vẽ ô vuông để con viết từng chữ số vào trong ô (như quy tắc tờ giấy A4).</div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-title">📌 <strong>Bài 2: Kiểm Tra Lại (5-10 phút/ngày)</strong></div>
+                        <div class="tip-content">Sau khi em làm xong bài cộng trừ, hãy cho em kiểm tra lại bằng cách: tính ngược lại (ví dụ: 23 + 15 = 38 → kiểm tra: 38 - 15 = 23 ✓).</div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-title">📌 <strong>Bài 3: Luyện Thêm (5 phút/ngày)</strong></div>
+                        <div class="tip-content">Cho em làm 5 bài cộng trừ 2-3 chữ số thêm mỗi ngày, rồi kiểm tra cùng em mẹ.</div>
+                    </div>
+                </div>
+                <div class="target-box">
+                    <strong>🎯 Mục tiêu trong 1-2 tuần:</strong> Em sẽ đạt 90% bài làm đúng (9/10) và có thói quen kiểm tra lại.
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 5: LỜI ĐỘNG VIÊN -->
+        <div class="feedback-section">
+            <div class="section-title">
+                <span class="section-icon">🎯</span>
+                <span>LỜI ĐỘNG VIÊN</span>
+            </div>
+            <div class="section-content">
+                <p>Em đã làm rất tốt hôm nay! Cô thấy em hiểu rõ phương pháp cộng trừ. Nếu em chú ý viết rõ hơn và kiểm tra lại, em chắc chắn sẽ làm điểm tuyệt vời! Cô tin em sẽ thành công, cố gắng lên em! <span class="emoji">💪</span></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
