@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Feedback Form</title>
+    <!-- Thư viện giao diện Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Thư viện Icon FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Font chữ dễ đọc */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: #1f2937; }
+        
+        /* Tùy chỉnh thanh cuộn cho đẹp hơn */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+        /* TAB BUTTONS */
+        .tab-btn { padding: 14px 24px; font-weight: 600; color: #555; background: #fff; border-bottom: 3px solid transparent; cursor: pointer; transition: all 0.2s; font-size: 14px; }
+        .tab-btn:hover { background-color: #f3f4f6; color: #000; }
+        .tab-btn.active { color: #0284c7; border-bottom: 3px solid #0284c7; background-color: #e0f2fe; }
+
+        /* KHUNG CHỨA (BOX) */
+        .criteria-box { background: #fff; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; }
+        
+        /* HEADER CỦA TỪNG KHUNG */
+        .box-header { padding: 12px 20px; font-weight: 700; text-transform: uppercase; font-size: 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #e5e7eb; letter-spacing: 0.5px; }
+        .box-body { padding: 20px; }
+
+        /* MÀU SẮC TIÊU ĐỀ */
+        .header-skills { background-color: #f0f9ff; color: #0369a1; border-left: 5px solid #0284c7; }
+        .header-knowledge { background-color: #ecfdf5; color: #047857; border-left: 5px solid #059669; }
+        .header-homework { background-color: #f5f3ff; color: #6d28d9; border-left: 5px solid #7c3aed; }
+        .header-support { background-color: #fef2f2; color: #b91c1c; border-left: 5px solid #dc2626; }
+        .header-next { background-color: #f0fdfa; color: #0f766e; border-left: 5px solid #0d9488; }
+        .header-internal { background-color: #fffbeb; color: #b45309; border-left: 5px solid #d97706; }
+
+        /* CHECKBOX CUSTOM */
+        .custom-checkbox { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; cursor: pointer; color: #374151; font-size: 14px; transition: 0.2s; }
+        .custom-checkbox:hover { color: #000; background-color: #f9fafb; padding-left: 4px; border-radius: 4px; }
+        .custom-checkbox input { margin-top: 4px; width: 18px; height: 18px; accent-color: #0284c7; cursor: pointer; }
+
+        /* INPUT FIELD */
+        .input-field { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; margin-top: 6px; background-color: #fff; transition: 0.2s; }
+        .input-field:focus { border-color: #0284c7; outline: none; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); }
+
+        /* INTERNAL TAGS */
+        .internal-tag { display: inline-block; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; margin-right: 8px; margin-bottom: 8px; border: 1px solid #d1d5db; color: #4b5563; background: #fff; transition: 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .internal-tag:hover { border-color: #9ca3af; background: #f3f4f6; transform: translateY(-1px); }
+        .internal-tag.selected { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; }
+        .internal-tag.alert.selected { background: #fef2f2; border-color: #dc2626; color: #b91c1c; }
+
+        /* BUTTONS */
+        .btn-generate { background: linear-gradient(to right, #3b82f6, #2563eb); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-generate:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-send { background-color: #db2777; color: white; border: none; padding: 14px 0; width: 100%; max-width: 300px; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(219, 39, 119, 0.4); transition: 0.2s; display: block; margin: 0 auto; }
+        .btn-send:hover { background-color: #be185d; transform: translateY(-2px); }
+
+        /* WARNING TEXT COLORS */
+        .text-alert { color: #ea580c; font-weight: 500; }
+        .text-danger { color: #dc2626; font-weight: 600; }
+
+        /* SUB TITLES */
+        .sub-section-title { font-weight: 700; color: #1f2937; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px dashed #e5e7eb; font-size: 15px; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<!-- h-screen để full chiều cao màn hình, flex để chia cột sidebar -->
+<body class="flex h-screen overflow-hidden text-sm">
+
+    <!-- SIDEBAR BÊN TRÁI -->
+    <div class="w-72 bg-white border-r border-gray-200 flex flex-col shrink-0 shadow-lg z-10">
+        <div class="p-5 font-bold text-lg border-b bg-gray-50 text-gray-800 flex items-center gap-2">
+            <i class="fas fa-users text-blue-600"></i> Danh sách học sinh
+        </div>
+        <div class="flex-1 overflow-y-auto">
+            <!-- Học sinh đang chọn -->
+            <div class="p-4 border-b bg-blue-50 border-l-4 border-l-blue-600 cursor-pointer flex justify-between items-center transition hover:bg-blue-100">
+                <div>
+                    <div class="font-bold text-gray-800">Lê Thanh Trúc</div>
+                    <div class="text-xs text-gray-500 mt-1">Lớp: TEEN-01 | ID: 2401</div>
+                </div>
+                <i class="fas fa-check-circle text-green-500 text-xl"></i>
+            </div>
+            <!-- Các học sinh khác -->
+            <div class="p-4 border-b hover:bg-gray-50 cursor-pointer flex justify-between items-center group transition">
+                <div>
+                    <div class="font-medium text-gray-600 group-hover:text-gray-900">Nguyễn Thế Trực</div>
+                </div>
+                <i class="fas fa-circle text-gray-200 group-hover:text-gray-300"></i>
+            </div>
+            <div class="p-4 border-b hover:bg-gray-50 cursor-pointer flex justify-between items-center group transition">
+                <div>
+                    <div class="font-medium text-gray-600 group-hover:text-gray-900">Chu Nhật Minh</div>
+                </div>
+                <i class="fas fa-circle text-gray-200 group-hover:text-gray-300"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- NỘI DUNG CHÍNH (BÊN PHẢI) -->
+    <div class="flex-1 flex flex-col bg-gray-100 relative">
+        
+        <!-- THANH ĐIỀU HƯỚNG TAB (CỐ ĐỊNH Ở TRÊN CÙNG) -->
+        <div class="bg-white border-b px-6 shadow-sm z-20 flex justify-between items-center sticky top-0">
+            <div class="flex">
+                <button class="tab-btn active" id="btn-feedback" onclick="switchTab('feedback')">
+                    <i class="fas fa-comment-dots mr-2"></i>NHẬN XÉT PHỤ HUYNH
+                </button>
+                <button class="tab-btn" id="btn-internal" onclick="switchTab('internal')">
+                    <i class="fas fa-shield-alt mr-2"></i>GHI CHÚ NỘI BỘ
+                </button>
+            </div>
+            <div class="text-gray-400 text-xs italic">Giáo viên: Nguyễn Văn A</div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- TAB 1: FORM NHẬN XÉT (HIỂN THỊ MẶC ĐỊNH) -->
+        <!-- ============================================================== -->
+        <div class="flex-1 overflow-y-auto p-8 pb-32" id="tab-feedback">
+            
+            <!-- THÔNG TIN BÀI HỌC -->
+            <div class="bg-white border border-blue-300 rounded-lg p-5 mb-6 shadow-sm relative">
+                <div class="absolute top-0 left-0 w-1 h-full bg-blue-500 rounded-l-lg"></div>
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-blue-700 font-bold uppercase text-xs tracking-wider flex items-center gap-2">
+                        <i class="fas fa-chalkboard-teacher text-lg"></i> Thông tin bài học
+                    </h3>
+                    <label class="text-xs text-blue-700 font-semibold flex items-center gap-2 cursor-pointer bg-blue-50 px-3 py-1 rounded-full border border-blue-100 hover:bg-blue-100">
+                        <input type="checkbox" checked> Lưu mẫu cho cả lớp
+                    </label>
+                </div>
+                <div class="grid grid-cols-1 gap-3 pl-2">
+                    <input type="text" class="input-field font-bold text-gray-800" value="Unit 3: My Daily Routine (Thói quen hàng ngày)">
+                    <input type="text" class="input-field" placeholder="Từ vựng & Ngữ pháp trọng tâm..." value="Vocab: Morning routine (wake up, brush teeth). Grammar: Present Simple.">
+                </div>
+            </div>
+
+            <!-- I. KỸ NĂNG (SKILLS) -->
+            <div class="criteria-box">
+                <div class="box-header header-skills"><i class="fas fa-layer-group"></i> I. Đánh giá Kỹ năng (Skills)</div>
+                <div class="box-body">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <!-- Listening -->
+                        <div>
+                            <div class="sub-section-title text-blue-700">1. Kỹ năng Nghe (Listening)</div>
+                            <label class="custom-checkbox"><input type="checkbox"> Hiểu được nội dung chính của đoạn nghe</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Bắt được từ khóa và thông tin quan trọng</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Làm đúng các câu hỏi nghe</label>
+                            <label class="custom-checkbox text-alert"><input type="checkbox"> Cần hỗ trợ để nhận biết âm, nối âm</label>
+                            <label class="custom-checkbox text-alert"><input type="checkbox"> Còn khó theo kịp tốc độ bài nghe</label>
+                        </div>
+                        <!-- Speaking -->
+                        <div>
+                            <div class="sub-section-title text-blue-700">2. Kỹ năng Nói (Speaking)</div>
+                            <label class="custom-checkbox"><input type="checkbox"> Diễn đạt được ý bằng câu đơn/câu mẫu</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Phát âm rõ, đúng trọng âm</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Dùng được từ vựng/cấu trúc mới khi nói</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Tự tin giao tiếp trong hoạt động</label>
+                            <label class="custom-checkbox text-alert"><input type="checkbox"> Cần gợi ý nhiều để trả lời hoặc xây câu</label>
+                        </div>
+                        <!-- Reading -->
+                        <div>
+                            <div class="sub-section-title text-blue-700">3. Kỹ năng Đọc (Reading)</div>
+                            <label class="custom-checkbox"><input type="checkbox"> Hiểu ý chính của đoạn văn</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Tìm được thông tin chi tiết trong bài</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Đọc trôi chảy (âm – ngắt nghỉ – trọng âm)</label>
+                            <label class="custom-checkbox text-alert"><input type="checkbox"> Cần hỗ trợ khi đọc hiểu/phát âm từ mới</label>
+                        </div>
+                        <!-- Writing -->
+                        <div>
+                            <div class="sub-section-title text-blue-700">4. Kỹ năng Viết (Writing)</div>
+                            <label class="custom-checkbox"><input type="checkbox"> Viết đúng cấu trúc câu đã học</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Diễn đạt rõ ràng, đúng ý</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Dùng được từ vựng mới trong bài viết</label>
+                            <label class="custom-checkbox text-alert"><input type="checkbox"> Còn sai lỗi chính tả, ngữ pháp</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- II. KIẾN THỨC (KNOWLEDGE) -->
+            <div class="criteria-box">
+                <div class="box-header header-knowledge"><i class="fas fa-book"></i> II. Kiến thức (Knowledge)</div>
+                <div class="box-body">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <!-- Vocab -->
+                        <div>
+                            <div class="sub-section-title text-green-700">5. Từ vựng (Vocabulary)</div>
+                            <label class="custom-checkbox"><input type="checkbox"> Nhớ và dùng đúng từ vựng của bài</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Nhận diện và phát âm tốt từ mới</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Áp dụng từ mới vào ngữ cảnh</label>
+                            <label class="custom-checkbox text-alert"><input type="checkbox"> Cần ôn thêm vì dễ quên nghĩa/phát âm</label>
+                        </div>
+                        <!-- Grammar -->
+                        <div>
+                            <div class="sub-section-title text-green-700">6. Ngữ pháp (Grammar)</div>
+                            <label class="custom-checkbox"><input type="checkbox"> Hiểu và dùng đúng cấu trúc ngữ pháp</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Làm bài tập chính xác</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Áp dụng được vào nói/viết</label>
+                            <label class="custom-checkbox text-alert"><input type="checkbox"> Còn nhầm lẫn → cần GV hướng dẫn thêm</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- III. BÀI TẬP VỀ NHÀ (HOMEWORK) -->
+            <div class="criteria-box">
+                <div class="box-header header-homework"><i class="fas fa-tasks"></i> III. Hoàn thành BTVN Buổi trước</div>
+                <div class="box-body">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <!-- Quantity -->
+                        <div>
+                            <div class="sub-section-title">1. Số lượng (Mức độ hoàn thành)</div>
+                            <label class="custom-checkbox"><input type="checkbox"> Hoàn thành đủ số bài được giao</label>
+                            <label class="custom-checkbox text-alert"><input type="checkbox"> Còn bỏ sót bài tập</label>
+                            <label class="custom-checkbox text-danger"><input type="checkbox"> Chưa làm bài tập</label>
+                        </div>
+                        <!-- Quality -->
+                        <div>
+                            <div class="sub-section-title">2. Chất lượng (Độ chính xác)</div>
+                            <label class="custom-checkbox"><input type="checkbox"> Tỷ lệ câu đúng cao, hiểu bài tốt</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Làm đúng nhưng còn lỗi ẩu</label>
+                            <label class="custom-checkbox text-alert"><input type="checkbox"> Sai nhiều do hổng kiến thức</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Auto Grading Section -->
+                    <div class="mt-6 pt-4 border-t border-dashed border-gray-300 bg-gray-50 -mx-5 px-5 pb-2">
+                        <div class="flex items-center gap-2 mb-3 text-xs font-bold text-gray-500 uppercase mt-2">
+                            <i class="fas fa-magic"></i> Chấm tự động (Tính năng Go-Live)
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 opacity-70 grayscale">
+                            <div>
+                                <div class="sub-section-title text-gray-500 text-sm">3. Trình bày (Hình thức)</div>
+                                <label class="custom-checkbox cursor-not-allowed"><input type="checkbox" disabled> Trình bày sạch đẹp, khoa học</label>
+                                <label class="custom-checkbox cursor-not-allowed"><input type="checkbox" disabled> Trình bày còn cẩu thả</label>
+                            </div>
+                            <div>
+                                <div class="sub-section-title text-gray-500 text-sm">4. Quy trình (Các bước giải)</div>
+                                <label class="custom-checkbox cursor-not-allowed"><input type="checkbox" disabled> Tuân thủ đúng các bước</label>
+                                <label class="custom-checkbox cursor-not-allowed"><input type="checkbox" disabled> Làm tắt / Thiếu bước</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IV. HỖ TRỢ & VẤN ĐỀ (SUPPORT) -->
+            <div class="criteria-box">
+                <div class="box-header header-support"><i class="fas fa-headset"></i> IV. Ghi nhận nổi bật & Cần hỗ trợ</div>
+                <div class="box-body">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Tech -->
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                            <div class="sub-section-title text-red-700 !border-none !mb-2"><i class="fas fa-wifi mr-1"></i> Thiết bị / Mạng</div>
+                            <label class="custom-checkbox"><input type="checkbox"> Mic hỏng / Âm thanh nhỏ</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Camera không hoạt động</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Mạng Internet chập chờn</label>
+                        </div>
+                        <!-- Environment -->
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                            <div class="sub-section-title text-red-700 !border-none !mb-2"><i class="fas fa-volume-up mr-1"></i> Môi trường học</div>
+                            <label class="custom-checkbox"><input type="checkbox"> Chỗ học ồn ào</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Nhiều người qua lại gây mất tập trung</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Ánh sáng không đảm bảo</label>
+                        </div>
+                        <!-- Attitude -->
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                            <div class="sub-section-title text-red-700 !border-none !mb-2"><i class="fas fa-user-clock mr-1"></i> Tâm lý / Thái độ</div>
+                            <label class="custom-checkbox"><input type="checkbox"> Mệt mỏi, uể oải</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Thiếu động lực học tập</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Dễ cáu gắt / Không hợp tác</label>
+                        </div>
+                        <!-- Prep -->
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                            <div class="sub-section-title text-red-700 !border-none !mb-2"><i class="fas fa-book-open mr-1"></i> Chuẩn bị bài</div>
+                            <label class="custom-checkbox"><input type="checkbox"> Quên sách / Dụng cụ học</label>
+                            <label class="custom-checkbox"><input type="checkbox"> Chưa chuẩn bị bài trước khi đến lớp</label>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <input type="text" class="input-field" placeholder="Ghi chú thêm về các vấn đề cần hỗ trợ...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- V. NEXT LESSON -->
+            <div class="criteria-box">
+                <div class="box-header header-next"><i class="fas fa-forward"></i> V. Chuẩn bị cho buổi sau</div>
+                <div class="box-body">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Link nội dung bài học buổi sau (LMS):</label>
+                    <div class="flex gap-2">
+                        <input type="text" class="input-field !mt-0" placeholder="Dán link bài học vào đây...">
+                        <button class="bg-teal-600 text-white px-5 py-2 rounded-md text-sm font-bold hover:bg-teal-700 whitespace-nowrap">Đính kèm Link</button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2"><i class="fas fa-info-circle"></i> Link này sẽ được gửi kèm trong email báo cáo cho phụ huynh.</p>
+                </div>
+            </div>
+
+            <!-- GENERATE AI COMMENT -->
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-8 relative">
+                <div class="absolute -top-3 left-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm">
+                    AI Assistant
+                </div>
+                <div class="flex justify-between items-center mb-4 mt-2">
+                    <div class="flex items-center gap-5">
+                        <span class="font-bold text-gray-700 text-sm">Tông giọng nhận xét:</span>
+                        <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-blue-600"><input type="radio" name="tone" checked> Chuyên nghiệp</label>
+                        <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-blue-600"><input type="radio" name="tone"> Thân thiện / Động viên</label>
+                    </div>
+                    <button class="btn-generate"><i class="fas fa-magic"></i> Tạo nhận xét tự động</button>
+                </div>
+                <textarea class="w-full border border-gray-300 p-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300 transition text-gray-700" rows="5" placeholder="Nội dung nhận xét sẽ hiển thị ở đây. Giáo viên có thể chỉnh sửa trước khi gửi..."></textarea>
+            </div>
+
+            <div class="text-center pb-10">
+                <button class="btn-send"><i class="fas fa-paper-plane mr-2"></i> GỬI BÁO CÁO CHO PHỤ HUYNH</button>
+            </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- TAB 2: GHI CHÚ NỘI BỘ (INTERNAL) -->
+        <!-- ============================================================== -->
+        <div class="flex-1 overflow-y-auto p-8 pb-32 hidden" id="tab-internal">
+            
+            <div class="bg-yellow-50 border border-yellow-200 text-yellow-900 p-4 rounded-lg mb-6 flex items-start gap-3 shadow-sm">
+                <i class="fas fa-lock mt-1 text-yellow-600"></i>
+                <div class="text-sm">
+                    <strong>Ghi chú nội bộ (Bảo mật):</strong> Thông tin này chỉ hiển thị cho Đội ngũ Quản lý (Admin) và Chăm sóc khách hàng. Phụ huynh và Học sinh sẽ <strong>KHÔNG</strong> nhìn thấy phần này.
+                </div>
+            </div>
+
+            <!-- INTERNAL 1 -->
+            <div class="criteria-box">
+                <div class="box-header header-internal"><i class="fas fa-exclamation-triangle"></i> 1. Chuyên cần & Sự cố lớp học</div>
+                <div class="box-body">
+                    <p class="mb-3 text-sm font-bold text-gray-700">Vấn đề chuyên cần:</p>
+                    <div class="flex flex-wrap mb-5">
+                        <span class="internal-tag" onclick="toggleTag(this)">Đi muộn (>15 phút)</span>
+                        <span class="internal-tag" onclick="toggleTag(this)">Về sớm</span>
+                        <span class="internal-tag alert" onclick="toggleTag(this)">Nghỉ không phép (No-Show)</span>
+                    </div>
+
+                    <p class="mb-3 text-sm font-bold text-gray-700">Sự cố Kỹ thuật / Hành vi:</p>
+                    <div class="flex flex-wrap">
+                        <span class="internal-tag" onclick="toggleTag(this)">Lỗi kỹ thuật nghiêm trọng (Hủy lớp)</span>
+                        <span class="internal-tag" onclick="toggleTag(this)">Học sinh mất trật tự / Làm ồn</span>
+                        <span class="internal-tag" onclick="toggleTag(this)">Phụ huynh can thiệp / Làm phiền</span>
+                        <span class="internal-tag" onclick="toggleTag(this)">Học sinh khóc / Không chịu học</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERNAL 2 -->
+            <div class="criteria-box">
+                <div class="box-header header-internal"><i class="fas fa-graduation-cap"></i> 2. Đánh giá Trình độ (Level Check)</div>
+                <div class="box-body">
+                    <p class="mb-3 text-sm font-bold text-gray-700">Mức độ phù hợp của bài học hiện tại?</p>
+                    <div class="flex flex-wrap gap-4 mb-2">
+                        <label class="flex items-center gap-2 cursor-pointer px-4 py-3 border rounded-lg hover:bg-gray-50 bg-white shadow-sm w-full md:w-auto">
+                            <input type="radio" name="level_check" checked class="accent-green-600"> 
+                            <span class="font-medium text-green-700">Trình độ phù hợp</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer px-4 py-3 border rounded-lg hover:bg-gray-50 bg-white shadow-sm w-full md:w-auto border-red-200">
+                            <input type="radio" name="level_check" class="accent-red-600"> 
+                            <span class="font-medium text-red-700">Quá khó (HS không theo kịp)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer px-4 py-3 border rounded-lg hover:bg-gray-50 bg-white shadow-sm w-full md:w-auto border-orange-200">
+                            <input type="radio" name="level_check" class="accent-orange-600"> 
+                            <span class="font-medium text-orange-700">Quá dễ (HS thấy nhàm chán)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERNAL 3 -->
+            <div class="criteria-box">
+                <div class="box-header header-internal"><i class="fas fa-phone"></i> 3. Hành động tiếp theo (CSKH)</div>
+                <div class="box-body">
+                    <div class="flex flex-wrap mb-4">
+                        <span class="internal-tag alert" onclick="toggleTag(this)">Gọi điện cho PH (Gấp)</span>
+                        <span class="internal-tag" onclick="toggleTag(this)">Cần hỗ trợ học thuật (Mentor)</span>
+                        <span class="internal-tag" onclick="toggleTag(this)">Kiểm tra kỹ thuật buổi sau</span>
+                    </div>
+                    <textarea class="input-field" rows="4" placeholder="Chi tiết cụ thể cần báo cho Admin/CSKH (VD: Phụ huynh phàn nàn về BTVN, đề xuất chuyển lớp xuống trình độ thấp hơn)..."></textarea>
+                </div>
+            </div>
+
+            <div class="text-right pb-10">
+                <button class="bg-gray-700 text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-800 shadow-md transition"><i class="fas fa-save mr-2"></i> LƯU GHI CHÚ NỘI BỘ</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SCRIPT XỬ LÝ CHUYỂN TAB ĐƠN GIẢN -->
+    <script>
+        function switchTab(tabName) {
+            const feedbackTab = document.getElementById('tab-feedback');
+            const internalTab = document.getElementById('tab-internal');
+            const btnFeedback = document.getElementById('btn-feedback');
+            const btnInternal = document.getElementById('btn-internal');
+
+            if (tabName === 'feedback') {
+                feedbackTab.classList.remove('hidden');
+                internalTab.classList.add('hidden');
+                btnFeedback.classList.add('active');
+                btnInternal.classList.remove('active');
+            } else {
+                feedbackTab.classList.add('hidden');
+                internalTab.classList.remove('hidden');
+                btnFeedback.classList.remove('active');
+                btnInternal.classList.add('active');
+            }
+        }
+
+        function toggleTag(el) {
+            el.classList.toggle('selected');
+        }
+    </script>
+</body>
+</html>
