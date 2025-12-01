@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mockup: Facebook Share Task</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Confetti Effect -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f3f4f6; }
+        .step-circle {
+            background-color: #eaf4ff; /* Xanh nhạt */
+            color: #2563eb; /* Xanh đậm */
+            font-weight: bold;
+        }
+        /* Animation cho Popup */
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .modal-content {
+            animation: popIn 0.2s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="h-screen flex items-center justify-center">
+
+    <!-- 1. MAIN MODAL: NHIỆM VỤ CHIA SẺ -->
+    <div id="mainModal" class="bg-white w-full max-w-[520px] rounded-3xl shadow-2xl relative overflow-hidden modal-content mx-4">
+        
+        <!-- Close Button -->
+        <button class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 transition">
+            <i class="fa-solid fa-xmark text-2xl"></i>
+        </button>
+
+        <div class="p-8">
+            <!-- Header -->
+            <h2 class="text-2xl font-bold text-center text-slate-800 mb-8">
+                Chia sẻ "trang" lên Facebook
+            </h2>
+
+            <!-- Steps -->
+            <div class="space-y-6">
+                <!-- Step 1 -->
+                <div class="flex gap-4 items-start">
+                    <div class="w-8 h-8 rounded-full step-circle flex items-center justify-center shrink-0 text-sm mt-0.5">1</div>
+                    <p class="text-slate-600 text-[15px] pt-1">
+                        Nhấn nút <strong>"Chia sẻ ngay"</strong> bên dưới để mở Facebook.
+                    </p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex gap-4 items-start">
+                    <div class="w-8 h-8 rounded-full step-circle flex items-center justify-center shrink-0 text-sm mt-0.5">2</div>
+                    <div class="text-slate-600 text-[15px] pt-1">
+                        Đăng bài ở chế độ <strong>Công khai</strong> kèm các hashtag:
+                        <div class="mt-2">
+                            <span class="bg-orange-100 text-[#e67e22] px-3 py-1 rounded-lg text-sm font-bold border border-orange-200 inline-block">#luyende</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex gap-4 items-start">
+                    <div class="w-8 h-8 rounded-full step-circle flex items-center justify-center shrink-0 text-sm mt-0.5">3</div>
+                    <p class="text-slate-600 text-[15px] pt-1 leading-relaxed">
+                        Sau khi đăng, copy link bài viết và quay lại đây dán vào ô bên dưới để nhận <strong>100 điểm</strong> <i class="fa-solid fa-bolt text-yellow-500"></i>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Input Section -->
+            <div class="bg-gray-50 p-5 rounded-xl border border-gray-100 mt-8 mb-6">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-3 ml-1 tracking-wide">Dán link bài viết của bạn:</label>
+                <div class="relative group">
+                    <input type="text" id="linkInput" placeholder="https://www.facebook.com/share/..." 
+                        class="w-full pl-10 pr-4 py-3 bg-white border-2 border-orange-300 rounded-xl focus:border-[#FA9634] focus:ring-0 outline-none text-sm text-slate-700 font-medium transition-all shadow-sm">
+                    <i class="fa-solid fa-link absolute left-4 top-3.5 text-gray-400 group-focus-within:text-[#FA9634] transition-colors"></i>
+                </div>
+                <p id="errorMsg" class="text-red-500 text-xs mt-2 ml-1 hidden"><i class="fa-solid fa-circle-exclamation"></i> Link không hợp lệ hoặc đã được sử dụng.</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Nút FB -->
+                <button onclick="openFakeFacebook()" class="flex items-center justify-center gap-2 w-full bg-[#1877F2] hover:bg-[#1464cc] text-white font-bold py-3.5 rounded-xl transition shadow-sm active:scale-95 text-[15px]">
+                    <i class="fa-brands fa-facebook text-lg"></i> Chia sẻ ngay
+                </button>
+
+                <!-- Nút Xác nhận -->
+                <button id="btnConfirm" onclick="verifyLink()" class="flex items-center justify-center gap-2 w-full bg-[#F2994A] hover:bg-[#e68a35] text-white font-bold py-3.5 rounded-xl transition shadow-md active:scale-95 text-[15px]">
+                    <i class="fa-solid fa-check"></i> Xác nhận
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. FAKE FACEBOOK DIALOG (Mô phỏng SDK) -->
+    <div id="fbMock" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center hidden">
+        <div class="bg-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden modal-content">
+            <!-- Header FB -->
+            <div class="bg-[#1877F2] text-white px-4 py-3 flex justify-between items-center">
+                <span class="font-bold text-sm"><i class="fa-brands fa-facebook mr-2"></i>Chia sẻ lên Bảng tin</span>
+                <button onclick="closeFakeFacebook()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <!-- Body FB -->
+            <div class="p-4">
+                <div class="flex gap-3 mb-4">
+                    <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+                    <div>
+                        <div class="font-bold text-sm text-slate-800">Người dùng Facebook</div>
+                        <div class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md inline-block mt-0.5">
+                            <i class="fa-solid fa-earth-americas"></i> Công khai
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Caption có sẵn -->
+                <textarea class="w-full h-24 p-2 text-sm text-slate-800 border-none resize-none focus:ring-0" readonly>Ôn thi trên Luyende.vn mà tiến bộ thấy rõ! 📈 Bạn nào sắp thi THPT thì nên thử nha 💯 #luyende</textarea>
+                
+                <!-- Link Preview -->
+                <div class="border border-gray-200 rounded-lg overflow-hidden flex bg-gray-50 mt-2">
+                    <div class="w-24 h-24 bg-orange-100 flex items-center justify-center text-orange-500 text-2xl">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div class="p-3 flex-1 flex flex-col justify-center">
+                        <div class="text-xs text-gray-500 uppercase font-bold">LUYENDE.VN</div>
+                        <div class="font-bold text-sm text-slate-800 leading-tight">Đường Đua Sĩ Tử - Tổng giải thưởng 9.9 Triệu</div>
+                        <div class="text-xs text-gray-500 mt-1">Tham gia ngay để nhận quà...</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer FB -->
+            <div class="px-4 py-3 border-t border-gray-100 flex justify-end gap-2 bg-gray-50">
+                <button onclick="closeFakeFacebook()" class="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-gray-200 rounded-md">Hủy</button>
+                <button onclick="finishShare()" class="px-6 py-2 text-sm font-bold text-white bg-[#1877F2] hover:bg-[#1464cc] rounded-md">Đăng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. SUCCESS POPUP (Hoàn thành) -->
+    <div id="successModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-6 text-center relative modal-content">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500 text-4xl shadow-sm">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">Thành Công!</h2>
+            <p class="text-slate-600 mb-6">Bạn đã nhận được <strong class="text-[#F2994A] text-xl">100 điểm ⚡</strong></p>
+            
+            <button onclick="location.reload()" class="w-full bg-[#F2994A] text-white font-bold py-3 rounded-xl hover:bg-[#e68a35] transition">
+                Tiếp tục
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const linkInput = document.getElementById('linkInput');
+        const errorMsg = document.getElementById('errorMsg');
+        const btnConfirm = document.getElementById('btnConfirm');
+
+        // Mở popup FB giả
+        function openFakeFacebook() {
+            document.getElementById('fbMock').classList.remove('hidden');
+        }
+
+        // Đóng popup FB
+        function closeFakeFacebook() {
+            document.getElementById('fbMock').classList.add('hidden');
+        }
+
+        // Giả lập hành động đăng bài xong -> Tự điền link demo
+        function finishShare() {
+            closeFakeFacebook();
+            // Simulate user copying link
+            linkInput.value = "https://www.facebook.com/share/p/123456789";
+            linkInput.focus();
+        }
+
+        // Logic Xác nhận
+        function verifyLink() {
+            const val = linkInput.value.trim();
+
+            // 1. Validate đơn giản
+            if (!val || !val.includes('facebook.com')) {
+                errorMsg.classList.remove('hidden');
+                linkInput.classList.add('border-red-500', 'text-red-600');
+                linkInput.classList.remove('border-orange-300');
+                return;
+            }
+
+            // Reset error
+            errorMsg.classList.add('hidden');
+            linkInput.classList.remove('border-red-500', 'text-red-600');
+            linkInput.classList.add('border-orange-300');
+
+            // 2. Loading state
+            const originalText = btnConfirm.innerHTML;
+            btnConfirm.disabled = true;
+            btnConfirm.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang xử lý...';
+            btnConfirm.classList.add('opacity-75', 'cursor-not-allowed');
+
+            // 3. Fake API Call (1.5s)
+            setTimeout(() => {
+                // Success
+                btnConfirm.innerHTML = originalText;
+                btnConfirm.disabled = false;
+                btnConfirm.classList.remove('opacity-75', 'cursor-not-allowed');
+                
+                // Show Success Popup & Confetti
+                document.getElementById('successModal').classList.remove('hidden');
+                triggerConfetti();
+            }, 1500);
+        }
+
+        // Hiệu ứng pháo giấy
+        function triggerConfetti() {
+            var count = 200;
+            var defaults = {
+                origin: { y: 0.7 }
+            };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+
+            fire(0.25, { spread: 26, startVelocity: 55, });
+            fire(0.2, { spread: 60, });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+            fire(0.1, { spread: 120, startVelocity: 45, });
+        }
+    </script>
+</body>
+</html>
