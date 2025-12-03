@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Math Tutor - Final V3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+
+        /* TOOLTIP STYLES */
+        .tooltip-trigger { position: relative; cursor: help; }
+        .tooltip-content {
+            visibility: hidden;
+            width: 200px;
+            background-color: #1e293b;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 50;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -100px;
+            margin-bottom: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 11px;
+            line-height: 1.4;
+            pointer-events: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .tooltip-content::after {
+            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px;
+            border-width: 5px; border-style: solid;
+            border-color: #1e293b transparent transparent transparent;
+        }
+        .tooltip-trigger:hover .tooltip-content { visibility: visible; opacity: 1; }
+
+        /* LEVEL CARDS */
+        .level-card {
+            border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 8px;
+            text-align: center; cursor: pointer; background: white; transition: all 0.2s;
+            height: 100%; display: flex; flex-direction: column; justify-content: center;
+        }
+        .level-card:hover { border-color: #3b82f6; }
+        .level-card.active { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; font-weight: 700; box-shadow: inset 0 0 0 1px #2563eb; }
+
+        /* SEGMENTED CONTROL */
+        .segment-group { display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; }
+        .segment-item { flex: 1; text-align: center; padding: 6px; font-size: 12px; cursor: pointer; border-radius: 6px; color: #64748b; transition: all 0.2s; font-weight: 500; }
+        .segment-item:hover { color: #334155; }
+        .segment-item.active { background: white; color: #0f172a; font-weight: 700; shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .segment-item.active.bad { color: #dc2626; }
+        .segment-item.active.good { color: #16a34a; }
+
+        /* INPUT ANIMATION */
+        .detail-input { display: none; margin-top: 10px; animation: slideDown 0.2s ease-out forwards; }
+        .detail-input.show { display: block; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <div class="w-64 bg-white border-r flex flex-col shrink-0 z-20">
+        <div class="p-4 border-b font-bold text-gray-700">Lớp: MATH-K5-02</div>
+        <div class="overflow-y-auto flex-1 custom-scroll">
+            <div class="p-3 border-b bg-blue-50 border-l-4 border-l-blue-600 font-bold text-gray-800 text-sm">Nguyễn Văn A</div>
+            <div class="p-3 border-b hover:bg-gray-50 text-gray-600 text-sm">Trần Thị B</div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden bg-white">
+        
+        <!-- HEADER -->
+        <div class="px-8 py-4 border-b flex justify-between items-center bg-white z-10 sticky top-0">
+            <div>
+                <h1 class="font-bold text-lg text-gray-800">Đánh giá Buổi học</h1>
+                <p class="text-xs text-gray-500">Học sinh: Nguyễn Văn A • ID: 2024</p>
+            </div>
+            <div class="flex gap-3">
+                <button class="text-gray-500 hover:text-gray-700 font-medium text-sm">Hủy bỏ</button>
+            </div>
+        </div>
+
+        <!-- FORM SCROLL AREA -->
+        <div class="flex-1 overflow-y-auto custom-scroll p-8 pb-32 max-w-5xl mx-auto w-full">
+            
+            <!-- SECTION 1: 3 CỘT (Theo yêu cầu mới) -->
+            <div class="mb-8">
+                <h2 class="text-sm font-bold uppercase text-gray-500 mb-4 pb-2 border-b">Bước 1: Đánh giá chi tiết</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Cột 1: Thái độ học tập -->
+                    <div class="bg-white border rounded-lg p-5 shadow-sm">
+                        <div class="font-bold text-gray-800 text-sm mb-4">Thái độ học tập</div>
+                        <div class="space-y-3">
+                            <div class="tooltip-trigger flex items-center">
+                                <input type="checkbox" id="chk-taptrung" onclick="checkConflict('taptrung')" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                <label for="chk-taptrung" class="ml-2 text-sm text-gray-700 cursor-pointer">Tập trung</label>
+                                <div class="tooltip-content">Mức độ tập trung vào bài giảng, không làm việc riêng.</div>
+                            </div>
+                            <div class="tooltip-trigger flex items-center">
+                                <input type="checkbox" id="chk-chudong" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                <label for="chk-chudong" class="ml-2 text-sm text-gray-700 cursor-pointer">Chủ động</label>
+                                <div class="tooltip-content">Tự giác ghi chép, tự giác chuẩn bị bài.</div>
+                            </div>
+                            <div class="tooltip-trigger flex items-center">
+                                <input type="checkbox" id="chk-cauthi" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                <label for="chk-cauthi" class="ml-2 text-sm text-gray-700 cursor-pointer">Cầu thị</label>
+                                <div class="tooltip-content">Lắng nghe khi giáo viên hoặc bạn khác góp ý.</div>
+                            </div>
+                            <div class="tooltip-trigger flex items-center">
+                                <input type="checkbox" id="chk-ton-trong" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                <label for="chk-ton-trong" class="ml-2 text-sm text-gray-700 cursor-pointer">Tôn trọng</label>
+                                <div class="tooltip-content">Tôn trọng giáo viên và các bạn học, không ngắt lời.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cột 2: Tương tác -->
+                    <div class="bg-gray-50 border rounded-lg p-5 shadow-sm">
+                        <div class="font-bold text-gray-800 text-sm mb-4">Tương tác</div>
+                        <div class="space-y-3">
+                            <div class="tooltip-trigger flex items-center">
+                                <input type="checkbox" id="chk-tansuat" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                <label for="chk-tansuat" class="ml-2 text-sm text-gray-700 cursor-pointer">Tần suất cao</label>
+                                <div class="tooltip-content">Số lần giơ tay, xung phong phát biểu, hoặc đặt câu hỏi.</div>
+                            </div>
+                            <div class="tooltip-trigger flex items-center">
+                                <input type="checkbox" id="chk-chatluong" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                <label for="chk-chatluong" class="ml-2 text-sm text-gray-700 cursor-pointer">Chất lượng tốt</label>
+                                <div class="tooltip-content">Câu hỏi/câu trả lời có liên quan đến bài học, thể hiện tư duy.</div>
+                            </div>
+                            <div class="tooltip-trigger flex items-center">
+                                <input type="checkbox" id="chk-nhom" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                <label for="chk-nhom" class="ml-2 text-sm text-gray-700 cursor-pointer">Tương tác nhóm</label>
+                                <div class="tooltip-content">Mức độ hăng hái, đóng góp và hợp tác khi làm việc nhóm.</div>
+                            </div>
+                            <div class="tooltip-trigger flex items-center">
+                                <input type="checkbox" id="chk-phanhoi" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                <label for="chk-phanhoi" class="ml-2 text-sm text-gray-700 cursor-pointer">Phản hồi nhanh</label>
+                                <div class="tooltip-content">Đáp lại ngay khi được gọi ("Dạ/Vâng").</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cột 3: Kỷ luật (Red) -->
+                    <div class="bg-red-50 border border-red-100 rounded-lg p-5 shadow-sm">
+                        <div class="font-bold text-red-700 text-sm mb-4">Kỷ luật (Cần nhắc nhở)</div>
+                        <div class="space-y-3">
+                            <div class="tooltip-trigger flex items-center">
+                                <input type="checkbox" id="chk-vi-pham-gio" class="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer">
+                                <label for="chk-vi-pham-gio" class="ml-2 text-sm text-gray-700 cursor-pointer">Vi phạm giờ giấc</label>
+                                <div class="tooltip-content">Vào lớp muộn hoặc về sớm không đúng quy định.</div>
+                            </div>
+                            <div class="tooltip-trigger flex items-center">
+                                <input type="checkbox" id="chk-thiet-bi" class="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer">
+                                <label for="chk-thiet-bi" class="ml-2 text-sm text-gray-700 cursor-pointer">Lỗi thiết bị (Mic/Cam)</label>
+                                <div class="tooltip-content">Bật/tắt camera, mic không đúng hướng dẫn.</div>
+                            </div>
+                            <div class="tooltip-trigger flex items-center">
+                                <input type="checkbox" id="chk-mattrattu" onclick="checkConflict('mattrattu')" class="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer">
+                                <label for="chk-mattrattu" class="ml-2 text-sm text-gray-700 cursor-pointer">Mất trật tự/Ồn ào</label>
+                                <div class="tooltip-content">Giữ trật tự, không gây ồn ào hoặc làm gián đoạn buổi học.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 2. KIẾN THỨC & VẬN DỤNG (GIỮ NGUYÊN) -->
+            <div class="mb-8">
+                <h2 class="text-sm font-bold uppercase text-gray-400 mb-3 tracking-wide"><i class="fas fa-brain mr-2"></i>2. Năng lực Toán học</h2>
+                
+                <!-- I. Nắm bắt -->
+                <div class="mb-5">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-sm font-bold text-gray-800">Khả năng Nắm bắt kiến thức</span>
+                        <span class="text-red-500">*</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-3">
+                        <div class="level-card tooltip-trigger" onclick="selectLevel(this, 'know', 1)">
+                            <div class="text-sm">1. Chưa tiếp thu</div>
+                            <div class="tooltip-content">Không thực hiện được các yêu cầu. Không diễn đạt lại được.</div>
+                        </div>
+                        <div class="level-card tooltip-trigger" onclick="selectLevel(this, 'know', 2)">
+                            <div class="text-sm">2. Hiểu sơ lược</div>
+                            <div class="tooltip-content">Làm được một phần nhỏ. Diễn đạt còn sai lệch.</div>
+                        </div>
+                        <div class="level-card tooltip-trigger active" onclick="selectLevel(this, 'know', 3)">
+                            <div class="text-sm">3. Hiểu cơ bản</div>
+                            <div class="tooltip-content">Làm được hầu hết bài. Diễn đạt đúng ý chính.</div>
+                        </div>
+                        <div class="level-card tooltip-trigger" onclick="selectLevel(this, 'know', 4)">
+                            <div class="text-sm">4. Hiểu sâu</div>
+                            <div class="tooltip-content">Hoàn thành chính xác. Diễn đạt logic, trôi chảy.</div>
+                        </div>
+                    </div>
+                    <!-- Conditional Input -->
+                    <div id="know-detail" class="detail-input">
+                        <input type="text" class="w-full bg-red-50 border border-red-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-red-500 placeholder-red-400" placeholder="Chi tiết: Con chưa hiểu phần nào? (Bắt buộc)">
+                    </div>
+                </div>
+
+                <!-- II. Vận dụng -->
+                <div class="mb-5">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-sm font-bold text-gray-800">Khả năng Vận dụng</span>
+                        <span class="text-red-500">*</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-3">
+                        <div class="level-card tooltip-trigger" onclick="selectLevel(this, 'apply', 1)">
+                            <div class="text-sm">1. Chưa vận dụng</div>
+                            <div class="tooltip-content">Không làm được bài dù đã có mẫu hoặc gợi ý.</div>
+                        </div>
+                        <div class="level-card tooltip-trigger" onclick="selectLevel(this, 'apply', 2)">
+                            <div class="text-sm">2. Bắt chước mẫu</div>
+                            <div class="tooltip-content">Làm được bài tương tự hoàn toàn (thay số).</div>
+                        </div>
+                        <div class="level-card tooltip-trigger" onclick="selectLevel(this, 'apply', 3)">
+                            <div class="text-sm">3. Linh hoạt</div>
+                            <div class="tooltip-content">Giải quyết được bài đổi ngữ cảnh hoặc tổng hợp.</div>
+                        </div>
+                        <div class="level-card tooltip-trigger" onclick="selectLevel(this, 'apply', 4)">
+                            <div class="text-sm">4. Sáng tạo</div>
+                            <div class="tooltip-content">Có nhiều cách giải hoặc tìm ra cách tối ưu hơn.</div>
+                        </div>
+                    </div>
+                    <div id="apply-detail" class="detail-input">
+                        <input type="text" class="w-full bg-red-50 border border-red-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-red-500 placeholder-red-400" placeholder="Chi tiết: Con gặp khó ở dạng bài nào?">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. CHỈ SỐ BÀI LÀM (Metrics) - GIỮ NGUYÊN -->
+            <div class="mb-8 bg-gray-50 p-5 rounded-xl border">
+                <h2 class="text-sm font-bold uppercase text-gray-400 mb-4 tracking-wide"><i class="fas fa-chart-bar mr-2"></i>3. Chỉ số bài làm</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- III. Tốc độ -->
+                    <div>
+                        <div class="flex items-center gap-2 mb-2 tooltip-trigger w-fit">
+                            <span class="text-sm font-bold text-gray-700">Tốc độ làm bài</span>
+                            <i class="fas fa-info-circle text-gray-400 text-xs"></i>
+                            <div class="tooltip-content">
+                                1. Chậm: Không hoàn thành kịp<br>
+                                2. Vừa: Đúng quy định<br>
+                                3. Nhanh: Sớm, có soát lại
+                            </div>
+                        </div>
+                        <div class="segment-group">
+                            <div class="segment-item" onclick="selectSegment(this)">1. Chậm</div>
+                            <div class="segment-item active" onclick="selectSegment(this)">2. Vừa</div>
+                            <div class="segment-item" onclick="selectSegment(this)">3. Nhanh</div>
+                        </div>
+                    </div>
+
+                    <!-- IV. Độ chính xác -->
+                    <div>
+                        <div class="flex items-center gap-2 mb-2 tooltip-trigger w-fit">
+                            <span class="text-sm font-bold text-gray-700">Độ chính xác</span>
+                            <i class="fas fa-info-circle text-gray-400 text-xs"></i>
+                            <div class="tooltip-content">
+                                1: <50% (Hổng kiến thức)<br>
+                                2: 50-75% (Còn sai sót)<br>
+                                3: >75% (Sai lỗi nhỏ)
+                            </div>
+                        </div>
+                        <div class="segment-group">
+                            <div class="segment-item" onclick="selectSegment(this)">1. Chưa đạt</div>
+                            <div class="segment-item active" onclick="selectSegment(this)">2. Cố gắng</div>
+                            <div class="segment-item" onclick="selectSegment(this)">3. Đạt</div>
+                        </div>
+                    </div>
+
+                    <!-- V. Trình bày -->
+                    <div>
+                        <div class="flex items-center gap-2 mb-2 tooltip-trigger w-fit">
+                            <span class="text-sm font-bold text-gray-700">Trình bày</span>
+                            <i class="fas fa-info-circle text-gray-400 text-xs"></i>
+                            <div class="tooltip-content">
+                                1: Sơ sài, tắt, lộn xộn<br>
+                                2: Sạch sẽ, đủ bước, khoa học
+                            </div>
+                        </div>
+                        <div class="segment-group">
+                            <div class="segment-item" onclick="selectSegment(this)">1. Sơ sài</div>
+                            <div class="segment-item active good" onclick="selectSegment(this)">2. Rõ ràng</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. NHẬN XÉT THÊM - GIỮ NGUYÊN -->
+            <div class="mb-8">
+                <h2 class="text-sm font-bold uppercase text-gray-400 mb-3 tracking-wide"><i class="fas fa-pen mr-2"></i>4. Ghi chú khác</h2>
+                <textarea class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none h-20" placeholder="Nhập thêm nhận xét tự do nếu có (VD: Con có tiến bộ vượt bậc so với tuần trước)..."></textarea>
+            </div>
+
+            <!-- AI GENERATOR AREA - GIỮ NGUYÊN -->
+            <div class="bg-blue-600 text-white rounded-xl p-6 shadow-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-bold text-lg"><i class="fas fa-magic mr-2"></i>AI Nhận Xét</h2>
+                    <div class="text-xs bg-blue-700 px-3 py-1 rounded-full">Còn 2 lượt tạo</div>
+                </div>
+                
+                <div class="flex gap-4 mb-4">
+                    <label class="flex items-center gap-2 cursor-pointer bg-blue-700 px-3 py-2 rounded-lg hover:bg-blue-500 transition">
+                        <input type="radio" name="tone" checked class="accent-white"> <span class="text-sm font-medium">Ngắn gọn</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-blue-700 px-3 py-2 rounded-lg hover:bg-blue-500 transition">
+                        <input type="radio" name="tone" class="accent-white"> <span class="text-sm font-medium">Thân thiện</span>
+                    </label>
+                    <button class="ml-auto bg-white text-blue-600 px-6 py-2 rounded-lg text-sm font-bold shadow hover:bg-gray-100 transition" onclick="generateAI()">
+                        Tạo Ngay
+                    </button>
+                </div>
+
+                <div class="relative">
+                    <textarea id="ai-output" class="w-full h-32 bg-white text-gray-800 rounded-lg p-3 text-sm focus:outline-none" placeholder="Kết quả AI sẽ hiện ở đây..."></textarea>
+                    <div id="loading" class="absolute inset-0 bg-white/90 rounded-lg flex items-center justify-center hidden">
+                        <span class="text-blue-600 font-bold animate-pulse">Đang phân tích dữ liệu...</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4 flex justify-end">
+                    <button class="bg-pink-500 hover:bg-pink-600 text-white px-8 py-2.5 rounded-lg font-bold shadow-lg transition">
+                        Gửi Phụ huynh
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Logic chọn Level 1-4
+        function selectLevel(el, type, level) {
+            const container = el.parentElement;
+            container.querySelectorAll('.level-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            
+            // Show input if level 1 or 2
+            const detail = document.getElementById(type + '-detail');
+            if(level <= 2) detail.classList.add('show');
+            else detail.classList.remove('show');
+        }
+
+        // Logic chọn Segment (Metrics)
+        function selectSegment(el) {
+            const container = el.parentElement;
+            container.querySelectorAll('.segment-item').forEach(c => {
+                c.classList.remove('active', 'bad', 'good');
+            });
+            el.classList.add('active');
+            
+            // Color logic logic demo
+            const txt = el.innerText;
+            if(txt.includes('1.')) el.classList.add('bad');
+            if(txt.includes('3.') || txt.includes('Rõ ràng')) el.classList.add('good');
+        }
+
+        // Logic Conflict (Tập trung vs Mất trật tự)
+        function checkConflict(type) {
+            const taptrung = document.getElementById('chk-taptrung');
+            const mattrattu = document.getElementById('chk-mattrattu');
+            
+            if(type === 'taptrung' && taptrung.checked) mattrattu.checked = false;
+            if(type === 'mattrattu' && mattrattu.checked) taptrung.checked = false;
+        }
+
+        // Fake AI
+        function generateAI() {
+            const loader = document.getElementById('loading');
+            const output = document.getElementById('ai-output');
+            loader.classList.remove('hidden');
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                output.value = "🌟 Điểm sáng:\n- Con rất tập trung, tốc độ làm bài vừa phải và trình bày rõ ràng.\n\n🛠 Cần cải thiện:\n- Độ chính xác chưa cao (50-75%), con cần cẩn thận hơn khi tính toán.\n\n💡 Dặn dò:\n- Mẹ nhắc con xem lại các lỗi sai trong bài tập nhé!";
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
