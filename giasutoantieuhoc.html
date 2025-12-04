@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Feedback - Rino Style</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Font giống trong ảnh tham khảo (tròn trịa, thân thiện) */
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background-color: #94a3b8; /* Giả lập nền tối của điện thoại khi mở popup */
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+
+        /* PHONE FRAME */
+        .phone-frame {
+            width: 375px; 
+            height: 812px; 
+            background-image: url('https://img.freepik.com/free-vector/hand-drawn-back-school-background_23-2149464866.jpg'); /* Giả lập background app phía sau */
+            background-size: cover;
+            border-radius: 40px; 
+            position: relative; 
+            overflow: hidden;
+            border: 10px solid #1e293b; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* DIMMED OVERLAY */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        /* POPUP MODAL */
+        .feedback-popup {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            z-index: 20;
+            max-height: 85%;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        /* HEADER */
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .popup-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .btn-close {
+            color: #64748b;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        /* CONTENT */
+        .popup-content {
+            padding: 20px;
+            overflow-y: auto;
+            font-size: 15px;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        /* SECTIONS */
+        .section-title {
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            margin-top: 16px;
+        }
+        .section-title:first-child { margin-top: 0; }
+
+        .bullet-item {
+            position: relative;
+            padding-left: 12px;
+            margin-bottom: 6px;
+        }
+        .bullet-item::before {
+            content: "-";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* BUTTON ORANGE */
+        .popup-footer {
+            padding: 16px 20px 30px 20px; /* Padding bottom lớn hơn cho các dòng iPhone đời mới */
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .btn-orange {
+            background: #FF6B00; /* Rino Orange */
+            color: white;
+            font-weight: 700;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            box-shadow: 0 4px 10px rgba(255, 107, 0, 0.25);
+        }
+        .btn-orange:active { opacity: 0.9; transform: scale(0.98); }
+
+        /* COLORS FOR ICONS */
+        .icon-target { color: #ef4444; } /* Đỏ */
+        .icon-trophy { color: #f59e0b; } /* Vàng */
+        .icon-leaf { color: #22c55e; } /* Xanh lá */
+        .icon-bell { color: #8b5cf6; } /* Tím (hoặc cam nâu) */
+
+    </style>
+</head>
+<body>
+
+    <div class="phone-frame">
+        <!-- Overlay làm tối nền sau -->
+        <div class="overlay"></div>
+
+        <!-- Popup chính -->
+        <div class="feedback-popup">
+            
+            <!-- 1. Header: Title + Close Button -->
+            <div class="popup-header">
+                <div class="popup-title">Nhận xét học tập</div>
+                <button class="btn-close"><i class="fas fa-times"></i></button>
+            </div>
+
+            <!-- 2. Scrollable Body -->
+            <div class="popup-content custom-scroll">
+                
+                <!-- Section 1: Bài học -->
+                <div class="section-title text-slate-800">
+                    <i class="fas fa-bullseye icon-target"></i> Bài học hôm nay có gì:
+                </div>
+                <div class="bullet-item">Hôm nay lớp mình học chủ đề <strong>"Diện tích Hình thang"</strong> với các công thức tính nhanh. 📐</div>
+                <div class="bullet-item">Cùng nhau luyện tập các bài toán đố cần tư duy ngược từ Đáp số ra Đáy lớn/Đáy bé. 🧠</div>
+
+                <!-- Section 2: Thành tích -->
+                <div class="section-title text-slate-800">
+                    <i class="fas fa-trophy icon-trophy"></i> Thành tích nổi bật:
+                </div>
+                <div class="bullet-item">Con tư duy rất nhanh! Khi Cô vừa đọc đề bài toán đố, con đã tóm tắt được ngay các dữ kiện quan trọng. Rất tốt! 🌟</div>
+                <div class="bullet-item">Tốc độ tính nhẩm của con trong phần khởi động cực kỳ ấn tượng, nhanh nhất lớp luôn đó nha! ⚡</div>
+
+                <!-- Section 3: Cải thiện -->
+                <div class="section-title text-slate-800">
+                    <i class="fas fa-seedling icon-leaf"></i> Mục tiêu cải thiện:
+                </div>
+                <div class="bullet-item">Con nhớ chú ý <strong>đổi đơn vị đo</strong> trước khi tính nha (ví dụ đổi từ cm sang m), như vậy đáp số mới chính xác được. 😉</div>
+                <div class="bullet-item">Mình cùng nắn nót trình bày bài giải sạch đẹp hơn nữa con nhé! 📝</div>
+
+                <!-- Section 4: Nhắc nhở -->
+                <div class="section-title text-slate-800">
+                    <i class="fas fa-bell icon-bell"></i> Nhắc nhở nhỏ xíu:
+                </div>
+                <div class="bullet-item">Con nhớ hoàn thành bài tập về nhà (Trang 15) để mình càng ngày càng giỏi Toán hơn nha! ❤️</div>
+
+            </div>
+
+            <!-- 3. Footer: Orange Button -->
+            <div class="popup-footer">
+                <button class="btn-orange">Đã xem</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
