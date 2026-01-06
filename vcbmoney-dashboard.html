@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VCBMoney Project Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+</head>
+<body class="bg-slate-900">
+    <div id="root"></div>
+    <script type="text/babel">
+const { useState, useMemo } = React;
+
+const foBugs = [
+  {"summary":"[BUG][FO] Lấy ra danh sách stk maker được phân quyền chưa đúng","key":"VM-925","status":"OPEN","priority":"High","assignee":"quannd1.ae","created":"02/Jan/26","description":"Precondition: Đăng nhập app bằng tài khoản linhmaker\n\nStep: Đăng nhập app FO → Click module Điện đi → Click tạo lệnh đơn → Check trường stk trích nợ\n\nActual: Lấy ra danh sách stk maker được phân quyền chưa đúng\n\nExpect: Truy vấn all stk từ bảng user_login_history.user_product_account","estimate_seconds":7200},
+  {"summary":"[BUG][FO][Danh sách và tìm kiếm] Giá trị trong droplist mã thanh toán viên không đúng","key":"VM-810","status":"OPEN","priority":"High","assignee":"lamdt.ae","created":"25/Dec/25","description":"Step: Đăng nhập app FO → Click module Điện đi → Check giá trị trong droplist mã thanh toán viên\n\nActual: Hiển thị giá trị không đúng\n\nExpect: Giá trị mã thanh toán viên được lấy từ bảng USER_LOGIN_HISTORY","estimate_seconds":3600},
+  {"summary":"[BUG][FO] UX để hiển thị màn preview và màn chi tiết lệnh không đúng","key":"VM-791","status":"OPEN","priority":"High","assignee":"quannd1.ae","created":"24/Dec/25","description":"Step: Đăng nhập app FO → Click module Điện đi → Click icon mắt xem\n\nActual: Click icon mắt xem → Hiển thị màn xem chi tiết\n\nExpect: Click icon mắt xem → Hiển thị màn preview","estimate_seconds":7200},
+  {"summary":"[BUG][FO][Xem chi tiết lệnh đơn] Treo app khi nhấn icon mắt xem chi tiết","key":"VM-790","status":"OPEN","priority":"High","assignee":"quannd1.ae","created":"24/Dec/25","description":"Step: Đăng nhập app FO → Click module Điện đi → Nhấn icon mắt để vào màn chi tiết lệnh\n\nActual: Treo app, không thao tác được tiếp\n\nExpect: Không bị treo app","estimate_seconds":7200},
+  {"summary":"[BUG][FO][Lệnh draft] Trạng thái draft khi nhấn xem chi tiết điều hướng sai","key":"VM-789","status":"OPEN","priority":"High","assignee":"quannd1.ae","created":"24/Dec/25","description":"Step: Nhấn icon mắt để vào màn chi tiết lệnh nháp\n\nActual: Hiển thị màn chi tiết lệnh nháp, không phép sửa\n\nExpect: Hiển thị form tạo mới và cho phép sửa lệnh nháp","estimate_seconds":3600},
+  {"summary":"[BUG][FO][Lệnh draft] Tự động clear giá trị tài khoản trích nợ khi user bị đổi quyền","key":"VM-783","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"24/Dec/25","description":"Step: Nhấn vào màn preview/chi tiết lệnh nháp sau khi đổi quyền tài khoản\n\nActual: Tự động clear giá trị tài khoản trích nợ\n\nExpect: Giữ nguyên giá trị tài khoản trích nợ cũ, báo lỗi khi lưu/đẩy duyệt","estimate_seconds":120},
+  {"summary":"[BUG][FO] Không hiển thị danh sách khi mới vào app","key":"VM-778","status":"In Progress","priority":"Medium","assignee":"duongnt.ae","created":"24/Dec/25","description":"Step: Đăng nhập app FO → Click module Điện đi → Check màn danh sách\n\nActual: Không hiển thị danh sách cho đến khi user nhấn tìm kiếm\n\nExpect: Tự động fill danh sách của ngày hiện tại","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Nút đóng tại màn xem chi tiết lệnh đơn không hoạt động","key":"VM-770","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"24/Dec/25","description":"Step: Click xem chi tiết lệnh đơn → Click nút đóng\n\nActual: Không có action gì\n\nExpect: Nút đóng hoạt động bình thường","estimate_seconds":1800},
+  {"summary":"[BUG][FO][Sao chép] Không chọn stk trích nợ vẫn đẩy duyệt thành công","key":"VM-758","status":"REVIEW","priority":"High","assignee":"quannd1.ae","created":"23/Dec/25","description":"Step: Nhấn sao chép lệnh → Không chọn stk trích nợ → Đẩy duyệt\n\nActual: Vẫn cho phép đẩy duyệt thành công\n\nExpect: Báo lỗi bắt buộc trường stk trích nợ","estimate_seconds":3600},
+  {"summary":"[BUG][FO][Sao chép] Không chọn stk trích nợ vẫn lưu nháp thành công","key":"VM-757","status":"REVIEW","priority":"High","assignee":"quannd1.ae","created":"23/Dec/25","description":"Step: Nhấn sao chép lệnh → Không chọn stk trích nợ → Nhấn Lưu\n\nActual: Vẫn cho phép lưu nháp thành công\n\nExpect: Báo lỗi bắt buộc trường stk trích nợ","estimate_seconds":0},
+  {"summary":"[BUG][FO][Sao chép] Tự động fill text (copy) vào trường nội dung","key":"VM-756","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"23/Dec/25","description":"Step: Nhấn đúp vào lệnh đơn → Click button sao chép\n\nActual: Tự động thêm text (copy) vào trường nội dung\n\nExpect: Không tự động thêm kí tự vào trường nội dung","estimate_seconds":3600},
+  {"summary":"[BUG][FO][Danh sách] Thiếu trường tên người ra lệnh tại popup tùy chỉnh cột","key":"VM-755","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"23/Dec/25","description":"Step: Click button tùy chỉnh cột và check giá trị\n\nActual: Thiếu trường tên người ra lệnh tại popup\n\nExpect: Hiển thị thêm trường tên người ra lệnh như yêu cầu","estimate_seconds":7200},
+  {"summary":"[BUG][FO][Danh sách] Làm mới bộ lọc clear hết giá trị ngày tạo lệnh","key":"VM-754","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"23/Dec/25","description":"Step: Click button làm mới bộ lọc\n\nActual: Clear hết giá trị tại date box ngày tạo lệnh\n\nExpect: Giá trị ngày tạo lệnh refresh về ngày hiện tại","estimate_seconds":7200},
+  {"summary":"[BUG][FO][Danh sách] Thiếu 10 trường tại popup tùy chỉnh hiển thị tìm kiếm","key":"VM-753","status":"OPEN","priority":"High","assignee":"quannd1.ae","created":"23/Dec/25","description":"Step: Click vào button tùy chỉnh hiển thị tìm kiếm\n\nActual: Thiếu 10 trường tùy chỉnh tìm kiếm\n\nExpect: Hiển thị đầy đủ 19 trường tùy chỉnh","estimate_seconds":14400},
+  {"summary":"[BUG][FO] Không hiển thị icon FI TO FI khi chuyển tiền giữa tổ chức tài chính","key":"VM-752","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"23/Dec/25","description":"Step: Tick chọn checkbox chuyển tiền giữa các tổ chức tài chính\n\nActual: Luôn hiển thị icon chuyển tiền đến NHNN\n\nExpect: Hiển thị icon FI TO FI như yêu cầu","estimate_seconds":7200},
+  {"summary":"[BUG][FO] Chưa có checkbox lưu điều kiện lọc làm mặc định","key":"VM-751","status":"OPEN","priority":"High","assignee":"duongnt.ae","created":"23/Dec/25","description":"Step: Check các trường tìm kiếm tài khoản trích nợ, mã thanh toán viên, trạng thái lệnh\n\nActual: Không có checkbox lưu điều kiện lọc làm mặc định\n\nExpect: Hiển thị checkbox và thực hiện được chức năng","estimate_seconds":14400},
+  {"summary":"[BUG][FO] Cho phép nhập quá 20 kí tự vào trường CCCD/HC","key":"VM-750","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"23/Dec/25","description":"Step: Nhập 21 kí tự vào trường CCCD/HC\n\nActual: Cho phép nhập\n\nExpect: Không cho phép nhập quá 20 kí tự","estimate_seconds":1800},
+  {"summary":"[BUG][FO] Lỗi không cho phép nhập kí tự chữ vào trường CCCD/HC","key":"VM-748","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"23/Dec/25","description":"Step: Nhập kí tự chữ vào trường CCCD/HC\n\nActual: Không cho phép nhập chữ\n\nExpect: Cho phép nhập chữ vào trường CCCD/HC","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Chưa bắt validate bắt buộc nhập cho trường ngày cấp","key":"VM-747","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"23/Dec/25","description":"Step: Nhập CCCD/HC → Không nhập trường ngày cấp → Nhấn lưu\n\nActual: Chỉ báo lỗi bắt buộc nhập cho trường nơi cấp\n\nExpect: Báo lỗi MSG_025 bắt buộc nhập cho cả trường ngày cấp","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Chưa bắt validate dấu gạch dưới cho trường tên người nhận","key":"VM-744","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"23/Dec/25","description":"Step: Nhập tên người nhận có chứa kí tự _ dấu gạch dưới\n\nActual: Lưu nháp thành công\n\nExpect: Báo lỗi MSG_025 nhập thông tin không đúng định dạng","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Auto clear giá trị trường tên người ra lệnh khi tick checkbox","key":"VM-743","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"23/Dec/25","description":"Step: Nhập tên người ra lệnh → Tick chọn checkbox chuyển tiền giữa tổ chức\n\nActual: Auto clear giá trị trường tên người ra lệnh\n\nExpect: Tick chọn không ảnh hưởng đến tên người ra lệnh","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Bắt validate khi nhập tên người nhận kí tự TV có dấu","key":"VM-741","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"23/Dec/25","description":"Step: Nhập tên người nhận bằng kí tự tiếng Việt có dấu\n\nActual: Báo lỗi hệ thống\n\nExpect: Cho phép nhập kí tự TV có dấu vào trường tên người nhận","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Luôn enable checkbox lưu thông tin người nhận vào danh bạ","key":"VM-738","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"23/Dec/25","description":"Step: Chưa nhập stk người nhận → Check checkbox lưu thông tin\n\nActual: Luôn enable checkbox\n\nExpect: Chỉ enable khi đã nhập stk người nhận","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Không tạo được lệnh đơn khi tick chuyển tiền giữa tổ chức tài chính","key":"VM-663","status":"TESTING","priority":"High","assignee":"linhvk.ae","created":"19/Dec/25","description":"Step: Tick chọn chuyển tiền giữa các tổ chức tài chính → Nhấn đẩy duyệt\n\nActual: Báo lỗi hệ thống\n\nExpect: Đẩy duyệt thành công","estimate_seconds":0},
+  {"summary":"[BUG][FO] Chưa làm API check hạn mức duyệt lệnh","key":"VM-655","status":"In Progress","priority":"High","assignee":"linhvk.ae","created":"19/Dec/25","description":"Step: Đăng nhập app FO → Tạo lệnh đơn\n\nActual: Chưa làm API check hạn mức duyệt lệnh\n\nExpect: Hoàn thiện API check hạn mức duyệt lệnh","estimate_seconds":1800},
+  {"summary":"[BUG][FO] Luôn hiển thị icon chuyển tiền đến NHNN","key":"VM-654","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"19/Dec/25","description":"Step: Không tick checkbox chuyển tiền giữa tổ chức → Check preview\n\nActual: Luôn hiển thị icon chuyển tiền đến NHNN\n\nExpect: Chỉ hiển thị icon khi user đã chọn tại màn tạo","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Không bắt validate cho trường tên ngân hàng nhận","key":"VM-613","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"18/Dec/25","description":"Step: Nhập kí tự đặc biệt không cho phép vào trường tên ngân hàng → Đẩy duyệt\n\nActual: Đẩy duyệt thành công\n\nExpect: Highlight báo lỗi cho trường tên ngân hàng nhận","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Lỗi hiển thị thiếu thông tin tên ngân hàng nhận","key":"VM-609","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"18/Dec/25","description":"Step: Nhập đủ 120 kí tự vào trường tên ngân hàng → Xem chi tiết\n\nActual: Hiển thị thiếu thông tin tên ngân hàng nhận\n\nExpect: Hiển thị đầy đủ thông tin tên ngân hàng nhận","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Chưa làm chức năng lưu mẫu","key":"VM-594","status":"REVIEW","priority":"High","assignee":"linhvk.ae","created":"17/Dec/25","description":"Step: Check button lưu mẫu giao dịch\n\nActual: Chưa có nút lưu mẫu\n\nExpect: Chức năng lưu mẫu hoạt động","estimate_seconds":0},
+  {"summary":"[BUG][FO] Chưa kiểm tra được tên người nhận","key":"VM-592","status":"In Progress","priority":"High","assignee":"lamdt.ae","created":"17/Dec/25","description":"Step: Nhập tên người nhận → Nhấn kiểm tra tên\n\nActual: Chưa có action gì cho button kiểm tra tên\n\nExpect: Chức năng kiểm tra tên người nhận hoạt động","estimate_seconds":1800},
+  {"summary":"[BUG][FO] Luôn ăn cấu hình lập duyệt giao dịch 2 cấp dù đã cấu hình 3 cấp","key":"VM-588","status":"TESTING","priority":"High","assignee":"linhvk.ae","created":"17/Dec/25","description":"Step: Cấu hình lập duyệt 3 cấp → Tạo lệnh → Check trạng thái\n\nActual: Trạng thái = pending for approver (ăn cấu hình 2 cấp)\n\nExpect: Trạng thái = pending for checker (ăn cấu hình 3 cấp)","estimate_seconds":0},
+  {"summary":"[BUG][FO] Chưa duyệt được lệnh đơn do hạn mức vượt quá báo lỗi không rõ ràng","key":"VM-584","status":"In Progress","priority":"Medium","assignee":"lamdt.ae","created":"17/Dec/25","description":"Step: Tạo lệnh đơn → Duyệt lệnh đơn vượt quá hạn mức\n\nActual: Báo lỗi không rõ ràng\n\nExpect: Báo lỗi MSG_122 Số tiền giao dịch vượt quá hạn mức phê duyệt","estimate_seconds":0},
+  {"summary":"[BUG][FO] Clear giá trị mã ngân hàng nhận khi tick checkbox NHNN","key":"VM-580","status":"TESTING","priority":"Medium","assignee":"quannd1.ae","created":"16/Dec/25","description":"Step: Chọn mã ngân hàng → Tick checkbox chuyển tiền đến NHNN\n\nActual: Clear giá trị mã ngân hàng nhận đã chọn\n\nExpect: Chỉ disable giá trị mã ngân hàng nhận đã chọn","estimate_seconds":0},
+  {"summary":"[BUG][FO] Không cho phép nhập kí tự space vào trường tên ngân hàng nhận","key":"VM-579","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"16/Dec/25","description":"Step: Nhập tay tên ngân hàng nhận bao gồm cả kí tự space\n\nActual: Không cho phép nhập kí tự space\n\nExpect: Cho phép nhập kí tự space vào text box","estimate_seconds":1800},
+  {"summary":"[BUG][FO] Danh bạ người nhận đang lấy ra all stk nhận khi đã chọn mã ngân hàng","key":"VM-578","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"16/Dec/25","description":"Step: Chọn mã ngân hàng → Check danh bạ người hưởng\n\nActual: Danh bạ lấy ra all stk nhận\n\nExpect: Danh bạ lấy ra stk nhận tương ứng với mã ngân hàng đã chọn","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Thiếu nút đóng tại màn tạo lệnh đơn","key":"VM-568","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"16/Dec/25","description":"Step: Check button đóng tại màn tạo lệnh đơn\n\nActual: Không có button đóng như thiết kế\n\nExpect: Hiển thị button đóng như thiết kế","estimate_seconds":1800},
+  {"summary":"[BUG][FO] Autofill stk người ra lệnh ngay cả khi chưa tick checkbox","key":"VM-567","status":"REVIEW","priority":"Medium","assignee":"linhvk.ae","created":"15/Dec/25","description":"Step: Chọn stk trích nợ → Không check checkbox → Check trường stk người ra lệnh\n\nActual: Auto fill stk người ra lệnh\n\nExpect: Không auto fill khi chưa tick checkbox","estimate_seconds":0},
+  {"summary":"[BUG][FO] Chưa auto fill tên tài khoản người ra lệnh","key":"VM-565","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"15/Dec/25","description":"Step: Chọn stk trích nợ → Tick checkbox chuyển tiền giữa tổ chức\n\nActual: Chưa auto fill tên tài khoản người ra lệnh\n\nExpect: Auto fill tên tài khoản người ra lệnh","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Báo lỗi không đúng khi nhập sai định dạng vào trường nội dung","key":"VM-564","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"15/Dec/25","description":"Step: Nhập kí tự dấu phảy vào textbox nội dung chuyển tiền → Đẩy duyệt\n\nActual: Báo lỗi hệ thống\n\nExpect: Highlight tại trường và hiển thị lỗi Dữ liệu không hợp lệ","estimate_seconds":7200},
+  {"summary":"[BUG][FO] Đang bắt maxlength theo dòng trường nội dung chuyển tiền","key":"VM-562","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"15/Dec/25","description":"Step: Nhập 48 kí tự hợp lệ vào textbox nội dung chuyển tiền\n\nActual: Đang bắt maxlength theo dòng\n\nExpect: Bắt maxlength theo tổng kí tự nhập vào = 210","estimate_seconds":1800},
+  {"summary":"[BUG][FO] Vẫn cho phép nhập kí tự TV có dấu vào trường nội dung","key":"VM-560","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"15/Dec/25","description":"Step: Nhập kí tự TV có dấu vào textbox nội dung chuyển tiền → Đẩy duyệt\n\nActual: Cho phép nhập, báo lỗi hệ thống khi đẩy duyệt\n\nExpect: Không cho phép nhập kí tự TV có dấu","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Hiển thị dòng đếm maxlength không đúng","key":"VM-557","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"15/Dec/25","description":"Step: Nhập 18 kí tự số nguyên vào textbox số tiền\n\nActual: Đang đếm cả kí tự ngăn cách phần đơn vị\n\nExpect: Không đếm dấu chấm ngăn cách phần đơn vị","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Chưa hiển thị tên tài khoản tại droplist stk trích nợ","key":"VM-551","status":"OPEN","priority":"Medium","assignee":"quyetqv.ae","created":"15/Dec/25","description":"Step: Check search box trường tài khoản trích nợ\n\nActual: Chưa hiển thị tên tk tại droplist stk trích nợ\n\nExpect: Hiển thị tên tk tại droplist stk trích nợ","estimate_seconds":1800},
+  {"summary":"[BUG][FO] Search box của trường tài khoản trích nợ không hoạt động","key":"VM-549","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"15/Dec/25","description":"Step: Check search box trường tài khoản trích nợ\n\nActual: Chưa tìm kiếm được thông tin tại search box\n\nExpect: Cho phép tìm kiếm like theo stk và tên tài khoản","estimate_seconds":7200},
+  {"summary":"[BUG][FO] Chưa đặt được tài khoản trích nợ mặc định trong DB","key":"VM-545","status":"OPEN","priority":"High","assignee":"lamdt.ae","created":"15/Dec/25","description":"Step: Check button tại màn tạo lệnh đơn\n\nActual: Chưa set được tk trích nợ mặc định\n\nExpect: Set được tk mặc định trong DB","estimate_seconds":10800},
+  {"summary":"[BUG][FO] Chưa bắt validate bắt buộc nhập các trường khi tạo lệnh đơn","key":"VM-540","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"12/Dec/25","description":"Step: Nhập nội dung chuyển tiền\n\nActual: Chưa bắt validate bắt buộc nhập các trường stk trích nợ, loại tiền tệ, số tiền\n\nExpect: Highlight bắt validate bắt buộc nhập các trường","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Chưa làm job đồng bộ về bảng IBGW_ALL_BANK","key":"VM-539","status":"OPEN","priority":"High","assignee":"lamdt.ae","created":"12/Dec/25","description":"Step: Check trường mã ngân hàng và tên ngân hàng\n\nActual: Đang import bằng tay, chưa làm job đồng bộ\n\nExpect: Hoàn thiện job đồng bộ data từ VCB về bảng IBGW_ALL_BANK","estimate_seconds":7200},
+  {"summary":"[BUG][FO] Chỉ bắt validate bắt buộc nhập trường nội dung","key":"VM-534","status":"OPEN","priority":"Medium","assignee":"duongnt.ae","created":"12/Dec/25","description":"Step: Chưa nhập data gì → Nhấn đẩy duyệt\n\nActual: Chỉ bắt validate bắt buộc nhập trường nội dung\n\nExpect: Highlight bắt validate bắt buộc nhập tất cả trường bắt buộc","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Trường stk người ra lệnh không bắt buộc nhưng vẫn gắn dấu *","key":"VM-533","status":"REVIEW","priority":"Medium","assignee":"duongnt.ae","created":"12/Dec/25","description":"Step: Check trường stk người ra lệnh\n\nActual: Trường không bắt buộc nhưng vẫn gắn dấu *\n\nExpect: Bỏ dấu * tại text box stk người ra lệnh","estimate_seconds":1800},
+  {"summary":"[BUG][FO] Lưu sai trường số CIF trong DB bảng Transaction","key":"VM-527","status":"In Progress","priority":"Medium","assignee":"duongnt.ae","created":"12/Dec/25","description":"Step: Chọn stk trích nợ → Đẩy duyệt → Check DB bảng Transaction trường CIF_NO\n\nActual: Lưu sai số cif của stk trích nợ\n\nExpect: Lưu đúng số cif của stk trích nợ","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Nhấn chọn stk trích nợ nhưng không fill loại tiền tệ tương ứng","key":"VM-491","status":"TESTING","priority":"Medium","assignee":"linhvk.ae","created":"11/Dec/25","description":"Step: Chọn stk trích nợ VND → Chọn lại stk có loại tiền khác VND\n\nActual: Không fill loại tiền tương ứng với stk vừa chọn lại\n\nExpect: Fill loại tiền tương ứng với stk vừa chọn lại","estimate_seconds":0},
+  {"summary":"[BUG][FO] Chưa có job đồng bộ loại tiền tệ về bảng CURRENT_RATE","key":"VM-489","status":"OPEN","priority":"High","assignee":"lamdt.ae","created":"10/Dec/25","description":"Step: Check trường loại tiền tệ\n\nActual: Chưa có job đồng bộ loại tiền tệ\n\nExpect: Job đồng bộ loại tiền tệ-tỷ giá hoạt động như yêu cầu","estimate_seconds":10800},
+  {"summary":"[BUG][FO] Thừa button in và xuất tại màn tạo lệnh đơn","key":"VM-488","status":"TESTING","priority":"Medium","assignee":"linhvk.ae","created":"10/Dec/25","description":"Step: Nhấn tạo lệnh đơn\n\nActual: Thừa button in và xuất tại màn tạo lệnh đơn\n\nExpect: Bỏ button in và xuất tại màn tạo lệnh đơn","estimate_seconds":0},
+  {"summary":"[BUG][FO] Không refresh lại danh sách giá trị trong droplist stk trích nợ","key":"VM-487","status":"REVIEW","priority":"Medium","assignee":"linhvk.ae","created":"10/Dec/25","description":"Step: Chọn loại tiền VND → Chọn stk → Tick hủy bỏ loại tiền\n\nActual: Không refresh lại danh sách giá trị\n\nExpect: Refresh lại danh sách giá trị khi hủy bỏ loại tiền","estimate_seconds":0},
+  {"summary":"[BUG][FO] Hiển thị nút lưu tại màn chi tiết lệnh nháp","key":"VM-485","status":"REVIEW","priority":"Medium","assignee":"linhvk.ae","created":"10/Dec/25","description":"Step: Click vào xem chi tiết lệnh nháp\n\nActual: Hiển thị thừa button lưu, in, xuất; thiếu button đẩy duyệt, xóa\n\nExpect: Hiển thị button đẩy duyệt, xóa, sao chép như thiết kế","estimate_seconds":0},
+  {"summary":"[BUG][FO] Hiển thị thiếu account trích nợ","key":"VM-481","status":"OPEN","priority":"Medium","assignee":"lamdt.ae","created":"09/Dec/25","description":"Step: Check droplist tài khoản trích nợ\n\nActual: Hiển thị thiếu account trích nợ 0019990778 dù thỏa mãn điều kiện\n\nExpect: Hiển thị đủ account trích nợ tại droplist","estimate_seconds":3600},
+  {"summary":"[BUG][FO] Đăng nhập OFFLINE: Không lấy được menu chức năng","key":"VM-270","status":"TESTING","priority":"High","assignee":"linhvk.ae","created":"19/Nov/25","description":"Step: Đăng nhập app FO khi hệ thống OFFLINE\n\nActual: Không lấy được menu chức năng\n\nExpect: Vẫn hiển thị đầy đủ menu","estimate_seconds":0}
+];
+
+const boBugs = [
+  {"summary":"[QC][BO][Chuyển tiền] Lỗi không hiển thị text sai trạng thái sau khi Teller Deny","key":"VM-942","status":"OPEN","priority":"Medium","assignee":"hanhdtm.ae","created":"05/Jan/26","description":"Step: Teller Deny bản ghi → Sup kiểm tra trạng thái\n\nActual: Hiển thị trạng thái \"Pending for approval to deny\"\n\nExpect: Hiển thị \"Pending approval for deny\"","estimate_seconds":0},
+  {"summary":"[QC][BO][Chuyển tiền] Lỗi không hiển thị đủ text khi Deny 1 giao dịch","key":"VM-936","status":"OPEN","priority":"Medium","assignee":"hanhdtm.ae","created":"05/Jan/26","description":"Step: Chọn 1 giao dịch → Click Deny để mở popup\n\nActual: Chỉ hiện message \"Vui lòng nhập lý do từ chối\"\n\nExpect: Message đúng format \"Có 1 giao dịch được chọn. Vui lòng nhập lý do từ chối\"","estimate_seconds":0},
+  {"summary":"[QC][BO][Chuyển tiền] Lỗi không validate trường Ben Account và Ben Name khi set Transfer Type 1","key":"VM-907","status":"OPEN","priority":"High","assignee":"hanhdtm.ae","created":"31/Dec/25","description":"Step: Mở bản ghi và set Transfer Type 1\n\nActual: Không call API thông tin hợp lệ Ben Account và Ben Name\n\nExpect: Phải fill thông tin tương ứng vào trường From VCB","estimate_seconds":0},
+  {"summary":"[QC][BO][Chuyển tiền] Lỗi chức năng Sort sắp xếp bản ghi không hoạt động","key":"VM-737","status":"OPEN","priority":"Medium","assignee":"hanhdtm.ae","created":"23/Dec/25","description":"Step: Trên màn Danh sách, nhấn nút Sort ở cột Amount\n\nActual: Chưa sắp xếp các cột theo thứ tự đúng\n\nExpect: Cho phép sort thành công","estimate_seconds":0},
+  {"summary":"[QC][BO][Chuyển tiền] Lỗi chức năng set TransType chưa hoạt động ở màn Danh sách","key":"VM-735","status":"TESTING","priority":"Medium","assignee":"hanhdtm.ae","created":"23/Dec/25","description":"Step: Chọn bản ghi → Nhấn nút TransType → Chọn Type 6 → Set\n\nActual: Message thành công nhưng bản ghi chưa được set vào Type nào\n\nExpect: Gắn vào Transfer Type thành công","estimate_seconds":0},
+  {"summary":"[QC][BO][Chuyển tiền] Lỗi chức năng Gắn/đổi Transfer Type chưa hoạt động","key":"VM-734","status":"TESTING","priority":"Medium","assignee":"hanhdtm.ae","created":"23/Dec/25","description":"Step: Click icon [...] ở bản ghi → Chọn Gắn/đổi Transfer Type\n\nActual: Chức năng chưa hoạt động\n\nExpect: Gắn hoặc đổi Transfer Type thành công","estimate_seconds":0},
+  {"summary":"[QC][BO][Chuyển tiền] Lỗi chức năng zoom in - zoom out chưa hoạt động","key":"VM-728","status":"OPEN","priority":"Medium","assignee":"bangpv.ae","created":"23/Dec/25","description":"Step: Vào bản ghi bất kỳ → Nhấn icon zoom in - zoom out\n\nActual: Chức năng chưa hoạt động\n\nExpect: Cho phép zoom in - zoom out vùng pop-up","estimate_seconds":28800},
+  {"summary":"[QC][BO][Chuyển tiền] Lỗi chưa lên gắn cờ ưu tiên với bản ghi từ FO sang BO","key":"VM-710","status":"OPEN","priority":"High","assignee":"lamdt.ae","created":"22/Dec/25","description":"Step: Tạo bản ghi có gắn cờ ưu tiên trên FO → Phê duyệt thành công\n\nActual: Trên BO chưa hiển thị thông tin cờ ưu tiên\n\nExpect: Truyền chính xác thông tin cờ ưu tiên","estimate_seconds":0},
+  {"summary":"[QC][BO][Chuyển tiền] Lỗi chưa lên đầy đủ thông tin ở View Original Message","key":"VM-705","status":"OPEN","priority":"High","assignee":"lamdt.ae","created":"22/Dec/25","description":"Step: Nhấn vào icon View Original Message\n\nActual: Thiếu thông tin Approver, Assigned Date, Payment Instruction, Value date, Chi tiết\n\nExpect: Hiển thị đầy đủ thông tin","estimate_seconds":0},
+  {"summary":"[QC][BO][Chuyển tiền] Lỗi chưa lên đúng Cú pháp sinh ra mã Detail","key":"VM-673","status":"Re-Open","priority":"Medium","assignee":"lamdt.ae","created":"20/Dec/25","description":"Step: Vào bản ghi Transfer Type = 1 → Quan sát trường Detail\n\nActual: Trường Detail thiếu ID Số giấy tờ, Ngày cấp, Nơi cấp\n\nExpect: Trả ra đúng kết quả theo cú pháp đầy đủ","estimate_seconds":0},
+  {"summary":"[QC][BO][Chuyển tiền] Lỗi trả ra kết quả Tìm kiếm bị sai khi chọn Priority","key":"VM-477","status":"TESTING","priority":"Medium","assignee":"ngocnm.ae","created":"08/Dec/25","description":"Step: Mở multi select box Priority → Chọn Ưu tiên hoặc Thông thường → Tìm kiếm\n\nActual: Không trả ra kết quả tương ứng chính xác\n\nExpect: Trả ra kết quả tương ứng với Priority","estimate_seconds":0}
+];
+
+const secondsToHours = (seconds) => (seconds / 3600).toFixed(1);
+
+const getStatusColor = (status) => {
+  const colors = {
+    'OPEN': 'bg-red-500/20 text-red-400 border-red-500/30',
+    'In Progress': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    'REVIEW': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+    'TESTING': 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+    'Re-Open': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+  };
+  return colors[status] || 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+};
+
+const getPriorityColor = (priority) => priority === 'High' ? 'text-red-400' : 'text-yellow-400';
+
+const StatCard = ({ icon, value, label, color }) => (
+  <div className="relative overflow-hidden rounded-2xl bg-slate-800/50 border border-slate-700/50 p-6">
+    <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${color}`}></div>
+    <div className="text-3xl mb-3">{icon}</div>
+    <div className="text-3xl font-bold font-mono text-white">{value}</div>
+    <div className="text-slate-400 text-sm mt-1">{label}</div>
+  </div>
+);
+
+const BugItem = ({ bug, expanded, onToggle }) => (
+  <div 
+    className={`p-4 rounded-xl border transition-all cursor-pointer mb-3 ${expanded ? 'bg-slate-700/50 border-emerald-500/50' : 'bg-slate-800/30 border-slate-700/50 hover:border-emerald-500/30'}`}
+    onClick={onToggle}
+  >
+    <div className="flex justify-between items-start gap-3">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-2 flex-wrap">
+          <span className="font-mono text-sm text-cyan-400">{bug.key}</span>
+          <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(bug.status)}`}>{bug.status}</span>
+          <span className={`text-xs ${getPriorityColor(bug.priority)}`}>● {bug.priority}</span>
+        </div>
+        <p className="text-slate-200 text-sm leading-relaxed">{bug.summary}</p>
+        <div className="flex flex-wrap gap-4 mt-3 text-xs text-slate-500">
+          <span>👤 {bug.assignee}</span>
+          <span>📅 {bug.created}</span>
+          {bug.estimate_seconds > 0 && <span className="text-emerald-400">⏱️ {secondsToHours(bug.estimate_seconds)}h</span>}
+        </div>
+      </div>
+      <div className={`transition-transform ${expanded ? 'rotate-180' : ''}`}>
+        <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+    </div>
+    {expanded && bug.description && (
+      <div className="mt-4 pt-4 border-t border-slate-700/50">
+        <p className="text-slate-400 text-sm whitespace-pre-wrap leading-relaxed">{bug.description}</p>
+      </div>
+    )}
+  </div>
+);
+
+const TeamMember = ({ name, bugs, hours, maxHours, gradient }) => (
+  <div className="flex items-center gap-4 py-3 border-b border-slate-700/30 last:border-0">
+    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-slate-900 bg-gradient-to-br ${gradient}`}>
+      {name.slice(0, 2).toUpperCase()}
+    </div>
+    <div className="flex-1">
+      <div className="text-slate-200 text-sm font-medium">{name}</div>
+      <div className="flex items-center gap-2 mt-1">
+        <div className="flex-1 h-2 bg-slate-700/50 rounded-full overflow-hidden">
+          <div className={`h-full bg-gradient-to-r ${gradient} rounded-full`} style={{ width: `${Math.min((hours / maxHours) * 100, 100)}%` }} />
+        </div>
+      </div>
+    </div>
+    <div className="text-right">
+      <div className="text-slate-200 font-mono text-sm">{bugs} bugs</div>
+      <div className="text-emerald-400 font-mono text-xs">{hours}h</div>
+    </div>
+  </div>
+);
+
+const TimelineItem = ({ date, title, description, estimation, icon }) => (
+  <div className="relative pl-8 pb-8 last:pb-0">
+    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-slate-700"></div>
+    <div className="absolute left-0 top-1 w-4 h-4 -translate-x-1/2 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-400 border-2 border-slate-900"></div>
+    <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50">
+      <div className="text-cyan-400 font-mono text-xs mb-2">{date}</div>
+      <div className="text-slate-200 font-semibold text-lg flex items-center gap-2">{icon} {title}</div>
+      <p className="text-slate-400 text-sm mt-2 leading-relaxed">{description}</p>
+      <div className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-full text-sm font-mono">⏱️ {estimation}</div>
+    </div>
+  </div>
+);
+
+function App() {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [expandedBugs, setExpandedBugs] = useState({});
+  const [foFilter, setFoFilter] = useState('all');
+  const [boFilter, setBoFilter] = useState('all');
+
+  const toggleBug = (key) => setExpandedBugs(prev => ({ ...prev, [key]: !prev[key] }));
+
+  const foStats = useMemo(() => {
+    const byStatus = {}, byAssignee = {};
+    let totalEstimate = 0;
+    foBugs.forEach(bug => {
+      byStatus[bug.status] = (byStatus[bug.status] || 0) + 1;
+      byAssignee[bug.assignee] = byAssignee[bug.assignee] || { count: 0, estimate: 0 };
+      byAssignee[bug.assignee].count += 1;
+      byAssignee[bug.assignee].estimate += bug.estimate_seconds;
+      totalEstimate += bug.estimate_seconds;
+    });
+    return { byStatus, byAssignee, totalEstimate, total: foBugs.length };
+  }, []);
+
+  const boStats = useMemo(() => {
+    const byStatus = {}, byAssignee = {};
+    let totalEstimate = 0;
+    boBugs.forEach(bug => {
+      byStatus[bug.status] = (byStatus[bug.status] || 0) + 1;
+      byAssignee[bug.assignee] = byAssignee[bug.assignee] || { count: 0, estimate: 0 };
+      byAssignee[bug.assignee].count += 1;
+      byAssignee[bug.assignee].estimate += bug.estimate_seconds;
+      totalEstimate += bug.estimate_seconds;
+    });
+    return { byStatus, byAssignee, totalEstimate, total: boBugs.length };
+  }, []);
+
+  const filteredFoBugs = foFilter === 'all' ? foBugs : foBugs.filter(b => b.status === foFilter);
+  const filteredBoBugs = boFilter === 'all' ? boBugs : boBugs.filter(b => b.status === boFilter);
+
+  const tabs = [
+    { id: 'overview', label: '📊 Overview' },
+    { id: 'bugs-fo', label: `🐛 FO Bugs (${foBugs.length})` },
+    { id: 'bugs-bo', label: `🐛 BO Bugs (${boBugs.length})` },
+    { id: 'timeline', label: '📅 Timeline' },
+    { id: 'team', label: '👥 Team' },
+  ];
+
+  const gradients = ['from-emerald-400 to-cyan-400', 'from-purple-400 to-pink-400', 'from-orange-400 to-yellow-400', 'from-blue-400 to-cyan-400', 'from-pink-400 to-rose-400'];
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-white p-4 md:p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-slate-700/50">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center text-slate-900 font-bold text-xl shadow-lg shadow-emerald-500/20">VCB</div>
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">VCBMoney Project Dashboard</h1>
+              <p className="text-slate-400 text-sm">Domestic Money Transfer System - Bug Tracking & Timeline</p>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            <div className="text-center px-4 py-2 bg-slate-800/50 rounded-xl border border-slate-700/50">
+              <div className="text-2xl font-bold font-mono text-red-400">{foBugs.length + boBugs.length}</div>
+              <div className="text-xs text-slate-500 uppercase tracking-wide">Total Bugs</div>
+            </div>
+            <div className="text-center px-4 py-2 bg-slate-800/50 rounded-xl border border-slate-700/50">
+              <div className="text-2xl font-bold font-mono text-blue-400">{foBugs.length}</div>
+              <div className="text-xs text-slate-500 uppercase tracking-wide">FO Bugs</div>
+            </div>
+            <div className="text-center px-4 py-2 bg-slate-800/50 rounded-xl border border-slate-700/50">
+              <div className="text-2xl font-bold font-mono text-purple-400">{boBugs.length}</div>
+              <div className="text-xs text-slate-500 uppercase tracking-wide">BO Bugs</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex flex-wrap gap-2 mb-6 bg-slate-800/30 p-1.5 rounded-xl w-fit">
+          {tabs.map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-900' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>{tab.label}</button>
+          ))}
+        </div>
+
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard icon="🐛" value={foBugs.length + boBugs.length} label="Total Open Bugs" color="from-emerald-400 to-cyan-400" />
+              <StatCard icon="⏱️" value={`${secondsToHours(foStats.totalEstimate + boStats.totalEstimate)}h`} label="Total Bug Estimation" color="from-blue-400 to-cyan-400" />
+              <StatCard icon="📋" value="23-25d" label="Additional Tasks" color="from-purple-400 to-pink-400" />
+              <StatCard icon="👥" value="9" label="Team Members" color="from-orange-400 to-yellow-400" />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-semibold text-slate-200">FO Bug Status Distribution</h3>
+                  <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full">{foStats.total} bugs</span>
+                </div>
+                <div className="space-y-3">
+                  {Object.entries(foStats.byStatus).map(([status, count]) => (
+                    <div key={status} className="flex items-center gap-3">
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium border ${getStatusColor(status)}`}>{status}</span>
+                      <div className="flex-1 h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full" style={{ width: `${(count / foStats.total) * 100}%` }} />
+                      </div>
+                      <span className="text-slate-400 text-sm font-mono w-8">{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-semibold text-slate-200">BO Bug Status Distribution</h3>
+                  <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full">{boStats.total} bugs</span>
+                </div>
+                <div className="space-y-3">
+                  {Object.entries(boStats.byStatus).map(([status, count]) => (
+                    <div key={status} className="flex items-center gap-3">
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium border ${getStatusColor(status)}`}>{status}</span>
+                      <div className="flex-1 h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full" style={{ width: `${(count / boStats.total) * 100}%` }} />
+                      </div>
+                      <span className="text-slate-400 text-sm font-mono w-8">{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50">
+              <h3 className="font-semibold text-slate-200 mb-4">Priority Distribution (All Bugs)</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-4 p-4 bg-red-500/10 rounded-xl border border-red-500/20">
+                  <div className="text-3xl">🔴</div>
+                  <div>
+                    <div className="text-2xl font-bold text-red-400">{foBugs.filter(b => b.priority === 'High').length + boBugs.filter(b => b.priority === 'High').length}</div>
+                    <div className="text-slate-400 text-sm">High Priority</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 p-4 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
+                  <div className="text-3xl">🟡</div>
+                  <div>
+                    <div className="text-2xl font-bold text-yellow-400">{foBugs.filter(b => b.priority === 'Medium').length + boBugs.filter(b => b.priority === 'Medium').length}</div>
+                    <div className="text-slate-400 text-sm">Medium Priority</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* FO Bugs Tab */}
+        {activeTab === 'bugs-fo' && (
+          <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50">
+            <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+              <h3 className="font-semibold text-slate-200">FrontOffice (FO) Bugs</h3>
+              <span className="text-xs px-3 py-1.5 bg-blue-500/20 text-blue-400 rounded-full">{foBugs.length} bugs • {secondsToHours(foStats.totalEstimate)}h estimation</span>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {['all', 'OPEN', 'In Progress', 'REVIEW', 'TESTING'].map(filter => (
+                <button key={filter} onClick={() => setFoFilter(filter)} className={`px-3 py-1.5 rounded-lg text-sm transition-all ${foFilter === filter ? 'bg-emerald-500 text-slate-900' : 'bg-slate-700/50 text-slate-400 hover:text-white border border-slate-600/50'}`}>
+                  {filter === 'all' ? `All (${foBugs.length})` : `${filter} (${foStats.byStatus[filter] || 0})`}
+                </button>
+              ))}
+            </div>
+            <div className="max-h-[600px] overflow-y-auto pr-2">
+              {filteredFoBugs.map(bug => <BugItem key={bug.key} bug={bug} expanded={expandedBugs[bug.key]} onToggle={() => toggleBug(bug.key)} />)}
+            </div>
+          </div>
+        )}
+
+        {/* BO Bugs Tab */}
+        {activeTab === 'bugs-bo' && (
+          <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50">
+            <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+              <h3 className="font-semibold text-slate-200">BackOffice (BO) Bugs</h3>
+              <span className="text-xs px-3 py-1.5 bg-purple-500/20 text-purple-400 rounded-full">{boBugs.length} bugs • {secondsToHours(boStats.totalEstimate)}h estimation</span>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {['all', 'OPEN', 'TESTING', 'Re-Open'].map(filter => (
+                <button key={filter} onClick={() => setBoFilter(filter)} className={`px-3 py-1.5 rounded-lg text-sm transition-all ${boFilter === filter ? 'bg-purple-500 text-slate-900' : 'bg-slate-700/50 text-slate-400 hover:text-white border border-slate-600/50'}`}>
+                  {filter === 'all' ? `All (${boBugs.length})` : `${filter} (${boStats.byStatus[filter] || 0})`}
+                </button>
+              ))}
+            </div>
+            <div className="max-h-[600px] overflow-y-auto pr-2">
+              {filteredBoBugs.map(bug => <BugItem key={bug.key} bug={bug} expanded={expandedBugs[bug.key]} onToggle={() => toggleBug(bug.key)} />)}
+            </div>
+          </div>
+        )}
+
+        {/* Timeline Tab */}
+        {activeTab === 'timeline' && (
+          <div className="space-y-6">
+            <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50">
+              <h3 className="font-semibold text-slate-200 mb-6 flex items-center gap-2">
+                <span className="w-1 h-6 bg-gradient-to-b from-emerald-400 to-cyan-400 rounded"></span>
+                Project Timeline & Additional Tasks
+              </h3>
+              <div className="ml-2">
+                <TimelineItem date="Phase 1 - Current Sprint" title="Bug Fixing - FO Module" description="Fix 57 bugs trong FrontOffice application bao gồm validation, UI/UX issues, API integration, và workflow bugs." estimation={`${secondsToHours(foStats.totalEstimate)}h (FO bugs)`} icon="🐛" />
+                <TimelineItem date="Phase 1 - Current Sprint" title="Bug Fixing - BO Module" description="Fix 11 bugs trong BackOffice application bao gồm Transfer Type, Search, Deny workflow, và data synchronization." estimation={`${secondsToHours(boStats.totalEstimate)}h (BO bugs)`} icon="🐛" />
+                <TimelineItem date="Phase 2 - Next Sprint" title="Refactor List/Search Module" description="Refactor lại module List và Search để cải thiện performance và user experience." estimation="3 days dev + 2 days re-test = 5 days" icon="🔄" />
+                <TimelineItem date="Phase 3" title="Import Feature Implementation" description="Implement batch file processing cho Excel, CSV, và text formats. Support up to 10MB files, 40,000 records." estimation="10 days working + 3 days test = 13 days" icon="📥" />
+                <TimelineItem date="Phase 4 - SIT" title="Regression Testing on SIT" description="Full regression testing trên môi trường SIT để đảm bảo tất cả modules hoạt động ổn định." estimation="5-7 working days" icon="🧪" />
+              </div>
+            </div>
+
+            <div className="bg-emerald-500/10 rounded-2xl p-6 border border-emerald-500/30">
+              <h3 className="font-semibold text-emerald-400 mb-4">📊 Total Estimation Summary</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <div className="text-3xl font-bold font-mono text-white">{secondsToHours(foStats.totalEstimate + boStats.totalEstimate)}h</div>
+                  <div className="text-slate-400 text-sm">Bug Fixing (FO + BO)</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold font-mono text-white">18-20d</div>
+                  <div className="text-slate-400 text-sm">Additional Tasks</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold font-mono text-white">5-7d</div>
+                  <div className="text-slate-400 text-sm">Regression SIT</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Team Tab */}
+        {activeTab === 'team' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-semibold text-slate-200">FO Team Estimation</h3>
+                <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full">5 members</span>
+              </div>
+              <div className="space-y-1">
+                {Object.entries(foStats.byAssignee).sort((a, b) => b[1].estimate - a[1].estimate).map(([name, data], i) => (
+                  <TeamMember key={name} name={name} bugs={data.count} hours={secondsToHours(data.estimate)} maxHours={35} gradient={gradients[i % gradients.length]} />
+                ))}
+              </div>
+              <div className="mt-4 pt-4 border-t border-slate-700/50 flex justify-between items-center">
+                <span className="text-slate-400 font-medium">Total</span>
+                <div className="text-right">
+                  <span className="text-slate-200 font-mono">{foStats.total} bugs</span>
+                  <span className="text-emerald-400 font-mono ml-4">{secondsToHours(foStats.totalEstimate)}h</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-semibold text-slate-200">BO Team Estimation</h3>
+                <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full">4 members</span>
+              </div>
+              <div className="space-y-1">
+                {Object.entries(boStats.byAssignee).sort((a, b) => b[1].estimate - a[1].estimate).map(([name, data], i) => (
+                  <TeamMember key={name} name={name} bugs={data.count} hours={secondsToHours(data.estimate)} maxHours={8} gradient={gradients[i % gradients.length]} />
+                ))}
+              </div>
+              <div className="mt-4 pt-4 border-t border-slate-700/50 flex justify-between items-center">
+                <span className="text-slate-400 font-medium">Total</span>
+                <div className="text-right">
+                  <span className="text-slate-200 font-mono">{boStats.total} bugs</span>
+                  <span className="text-purple-400 font-mono ml-4">{secondsToHours(boStats.totalEstimate)}h</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-2 bg-slate-800/30 rounded-2xl p-6 border border-slate-700/50">
+              <h3 className="font-semibold text-slate-200 mb-4">Additional Development Tasks</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-slate-500 text-xs uppercase tracking-wider border-b border-slate-700/50">
+                      <th className="text-left py-3 px-4">Task</th>
+                      <th className="text-left py-3 px-4">Dev Time</th>
+                      <th className="text-left py-3 px-4">Test Time</th>
+                      <th className="text-left py-3 px-4">Total</th>
+                      <th className="text-left py-3 px-4">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-slate-300">
+                    <tr className="border-b border-slate-700/30 hover:bg-slate-700/20">
+                      <td className="py-3 px-4">🔄 Regression Module (SIT)</td>
+                      <td className="py-3 px-4 text-slate-500">-</td>
+                      <td className="py-3 px-4">5-7 days</td>
+                      <td className="py-3 px-4 font-mono text-emerald-400">5-7 days</td>
+                      <td className="py-3 px-4"><span className="px-2 py-0.5 rounded text-xs bg-slate-600/50 text-slate-300">Planned</span></td>
+                    </tr>
+                    <tr className="border-b border-slate-700/30 hover:bg-slate-700/20">
+                      <td className="py-3 px-4">🔧 Refactor List/Search</td>
+                      <td className="py-3 px-4">3 days</td>
+                      <td className="py-3 px-4">2 days</td>
+                      <td className="py-3 px-4 font-mono text-emerald-400">5 days</td>
+                      <td className="py-3 px-4"><span className="px-2 py-0.5 rounded text-xs bg-slate-600/50 text-slate-300">Planned</span></td>
+                    </tr>
+                    <tr className="border-b border-slate-700/30 hover:bg-slate-700/20">
+                      <td className="py-3 px-4">📥 Import Feature</td>
+                      <td className="py-3 px-4">10 days</td>
+                      <td className="py-3 px-4">3 days</td>
+                      <td className="py-3 px-4 font-mono text-emerald-400">13 days</td>
+                      <td className="py-3 px-4"><span className="px-2 py-0.5 rounded text-xs bg-slate-600/50 text-slate-300">Planned</span></td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr className="bg-slate-700/20 font-semibold">
+                      <td className="py-3 px-4 text-slate-200">Total Additional Tasks</td>
+                      <td className="py-3 px-4">13 days</td>
+                      <td className="py-3 px-4">10-12 days</td>
+                      <td className="py-3 px-4 font-mono text-orange-400">23-25 days</td>
+                      <td className="py-3 px-4"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
